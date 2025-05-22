@@ -239,6 +239,11 @@ try {
                 margin-bottom: 10px;
             }
             
+            .header h2 {
+                font-size: 50px; /* Aumentar el tamaño de la fuente */
+                margin: 0; /* Eliminar margen para mejor alineación */
+            }
+
             .content {
                 padding: 30px;
             }
@@ -292,7 +297,7 @@ try {
                 <a href="https://www.tusitio.com">
                     <img src="https://upload.wikimedia.org/wikipedia/commons/5/59/Dragon_Ball_Z_Logo_B.png" alt="Logo de la Empresa">
                 </a>
-                <h2>VegetaStor</h2>
+                <h2>VegetaStoR</h2>
             </div>
             <div class="content">
                 <h1>Hola ,</h1>
