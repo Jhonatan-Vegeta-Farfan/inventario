@@ -290,12 +290,12 @@ try {
         <div class="container">
             <div class="header">
                 <a href="https://www.tusitio.com">
-                    <img src="https://www.tusitio.com/logo.png" alt="Logo de la Empresa">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/5/59/Dragon_Ball_Z_Logo_B.png" alt="Logo de la Empresa">
                 </a>
-                <h2>Nombre de tu empresa</h2>
+                <h2>VegetaStor</h2>
             </div>
             <div class="content">
-                <h1>Hola [Nombre del usuario],</h1>
+                <h1>Hola ,</h1>
                 <p>
                     Te informamos que tu contraseña ha sido actualizada exitosamente. Si no realizaste este cambio, por favor contáctanos de inmediato.
                 </p>
@@ -306,7 +306,7 @@ try {
                 <p>Gracias por confiar en nosotros.</p>
             </div>
             <div class="footer">
-                © 2025 Nombre de tu empresa. Todos los derechos reservados.<br>
+                © 2025. Todos los derechos reservados.<br>
                 <a href="https://www.tusitio.com/desuscribirse" style="color: #ffffff;">Cancelar suscripción</a>
             </div>
         </div>
