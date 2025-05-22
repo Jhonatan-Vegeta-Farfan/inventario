@@ -203,92 +203,116 @@ try {
     $mail->CharSet = 'UTF-8';                                 
     $mail->Subject = 'Cambio de contraseña - Sistema de Inventario';
     $mail->Body    = '
+
+    
     <!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Correo Empresarial</title>
-<style>
-body {
-margin: 0;
-padding: 0;
-background-color: #f4f4f4;
-}
-.container {
-max-width: 600px;
-margin: auto;
-background-color: #ffffff;
-font-family: Arial, sans-serif;
-color: #333333;
-border: 1px solid #dddddd;
-}
-.header {
-background-color: #004aad;
-color: white;
-padding: 20px;
-text-align: center;
-}
-.content {
-padding: 30px;
-}
-.content h1 {
-font-size: 22px;
-margin-bottom: 20px;
-}
-.content p {
-font-size: 16px;
-line-height: 1.5;
-}
-.button {
-display: inline-block;
-background-color: #004aad;
-color: #ffffff !important;
-padding: 12px 25px;
-margin: 20px 0;
-text-decoration: none;
-border-radius: 4px;
-}
-.footer {
-background-color: #eeeeee;
-text-align: center;
-padding: 15px;
-font-size: 12px;
-color: #666666;
-}
-@media screen and (max-width: 600px) {
-.content, .header, .footer {
-padding: 15px !important;
-}
-.button {
-padding: 10px 20px !important;
-}
-}
-</style>
-</head>
-<body>
-<div class="container">
-<div class="header">
-<h2>Nombre de tu empresa</h2>
-</div>
-<div class="content">
-<h1>Hola [Nombre del cliente],</h1>
-<p>
-Te saludamos cordialmente. Queremos informarte sobre nuestras últimas novedades y promociones exclusivas para ti.
-</p>
-<p>
-¡No te pierdas nuestras ofertas especiales por tiempo limitado!
-</p>
-<a href="https://www.tusitio.com/promocion" class="button">Ver más</a>
-<p>Gracias por confiar en nosotros.</p>
-</div>
-<div class="footer">
-© 2025 Nombre de tu empresa. Todos los derechos reservados.<br>
-<a href="https://www.tusitio.com/desuscribirse">Cancelar suscripción</a>
-</div>
-</div>
-</body>
-</html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Actualización de Contraseña</title>
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                background-color: #f4f4f4;
+            }
+            
+            .container {
+                max-width: 600px;
+                margin: auto;
+                background-color: #000000;
+                font-family: Arial, sans-serif;
+                color: #ffffff;
+                border: 1px solid #dd0000;
+            }
+            
+            .header {
+                background-color: #dd0000;
+                color: white;
+                padding: 20px;
+                text-align: center;
+            }
+            
+            .header img {
+                max-width: 150px;
+                margin-bottom: 10px;
+            }
+            
+            .content {
+                padding: 30px;
+            }
+            
+            .content h1 {
+                font-size: 22px;
+                margin-bottom: 20px;
+            }
+            
+            .content p {
+                font-size: 16px;
+                line-height: 1.5;
+            }
+            
+            .button {
+                display: inline-block;
+                background-color: #dd0000;
+                color: #ffffff !important;
+                padding: 12px 25px;
+                margin: 20px 0;
+                text-decoration: none;
+                border-radius: 4px;
+                transition: background-color 0.3s;
+            }
+            
+            .button:hover {
+                background-color: #ff3333;
+            }
+            
+            .footer {
+                background-color: #333333;
+                text-align: center;
+                padding: 15px;
+                font-size: 12px;
+                color: #ffffff;
+            }
+            
+            @media screen and (max-width: 600px) {
+                .content, .header, .footer {
+                    padding: 15px !important;
+                }
+                .button {
+                    padding: 10px 20px !important;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <a href="https://www.tusitio.com">
+                    <img src="https://www.tusitio.com/logo.png" alt="Logo de la Empresa">
+                </a>
+                <h2>Nombre de tu empresa</h2>
+            </div>
+            <div class="content">
+                <h1>Hola [Nombre del usuario],</h1>
+                <p>
+                    Te informamos que tu contraseña ha sido actualizada exitosamente. Si no realizaste este cambio, por favor contáctanos de inmediato.
+                </p>
+                <p>
+                    Para mayor seguridad, te recomendamos que cambies tu contraseña regularmente. Si deseas cambiarla nuevamente, puedes hacerlo a través del siguiente enlace:
+                </p>
+                <a href="https://www.tusitio.com/cambiar-contraseña" class="button">Cambiar Contraseña</a>
+                <p>Gracias por confiar en nosotros.</p>
+            </div>
+            <div class="footer">
+                © 2025 Nombre de tu empresa. Todos los derechos reservados.<br>
+                <a href="https://www.tusitio.com/desuscribirse" style="color: #ffffff;">Cancelar suscripción</a>
+            </div>
+        </div>
+    </body>
+    </html>
+    
     ';
 
     $mail->send();
