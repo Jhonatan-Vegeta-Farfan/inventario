@@ -27,6 +27,10 @@ class ComposerStaticInit07f5dad6f1bbe59931ca489a5f23aa4c
         array (
             'Matrix\\' => 7,
         ),
+        'D' => 
+        array (
+            'Disc\\' => 5,
+        ),
         'C' => 
         array (
             'Composer\\Pcre\\' => 14,
@@ -67,6 +71,10 @@ class ComposerStaticInit07f5dad6f1bbe59931ca489a5f23aa4c
         'Matrix\\' => 
         array (
             0 => __DIR__ . '/..' . '/markbaker/matrix/classes/src',
+        ),
+        'Disc\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/disc/php-zabbix-sender/src',
         ),
         'Composer\\Pcre\\' => 
         array (

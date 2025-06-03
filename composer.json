@@ -15,6 +15,7 @@
     "require": {
         "phpmailer/phpmailer": "^6.9",
         "tecnickcom/tcpdf": "^6.9",
-        "phpoffice/phpspreadsheet": "^4.2"
+        "phpoffice/phpspreadsheet": "^4.2",
+        "disc/php-zabbix-sender": "^1.3"
     }
 }
