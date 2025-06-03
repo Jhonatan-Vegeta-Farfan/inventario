@@ -160,6 +160,7 @@ if($tipo =="sent_email_password"){
     if ($objSesion->verificar_sesion_si_activa($id_sesion, $token)){
         $datos_sesion = $objSesion->buscarSesionLoginById($id_sesion);
         $datos_usuario = $objUsuario->buscarUsuarioById($datos_sesion->id_usuario);
+        $nombreusuario = $datos_usuario->nombres_apellidos;
         $llave = $objAdmin->generar_llave(30);
         $token = password_hash($llave, PASSWORD_DEFAULT);
         $update = $objUsuario->updateResetPassword($datos_sesion->id_usuario, $llave, 1);
@@ -225,6 +226,9 @@ try {
                 font-family: Arial, sans-serif;
                 color: #ffffff;
                 border: 1px solid #dd0000;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                border-radius: 8px;
+                overflow: hidden;
             }
             
             .header {
@@ -235,13 +239,14 @@ try {
             }
             
             .header img {
-                max-width: 150px;
+                max-width: 100%;
+                height: auto;
                 margin-bottom: 10px;
             }
             
             .header h2 {
-                font-size: 50px; /* Aumentar el tamaño de la fuente */
-                margin: 0; /* Eliminar margen para mejor alineación */
+                font-size: 2.5em;
+                margin: 0;
             }
 
             .content {
@@ -249,12 +254,12 @@ try {
             }
             
             .content h1 {
-                font-size: 22px;
+                font-size: 1.5em;
                 margin-bottom: 20px;
             }
             
             .content p {
-                font-size: 16px;
+                font-size: 1em;
                 line-height: 1.5;
             }
             
@@ -267,6 +272,7 @@ try {
                 text-decoration: none;
                 border-radius: 4px;
                 transition: background-color 0.3s;
+                text-align: center;
             }
             
             .button:hover {
@@ -277,7 +283,7 @@ try {
                 background-color: #333333;
                 text-align: center;
                 padding: 15px;
-                font-size: 12px;
+                font-size: 0.8em;
                 color: #ffffff;
             }
             
@@ -287,6 +293,15 @@ try {
                 }
                 .button {
                     padding: 10px 20px !important;
+                }
+                .header h2 {
+                    font-size: 2em; /* Ajuste para pantallas pequeñas */
+                }
+                .content h1 {
+                    font-size: 1.2em; /* Ajuste para pantallas pequeñas */
+                }
+                .content p {
+                    font-size: 0.9em; /* Ajuste para pantallas pequeñas */
                 }
             }
         </style>
@@ -300,7 +315,7 @@ try {
                 <h2>VegetaStoR</h2>
             </div>
             <div class="content">
-                <h1>Hola ,</h1>
+            <h1>Hola '. $nombreusuario .'</h1>
                 <p>
                     Te informamos que tu contraseña ha sido actualizada exitosamente. Si no realizaste este cambio, por favor contáctanos de inmediato.
                 </p>
