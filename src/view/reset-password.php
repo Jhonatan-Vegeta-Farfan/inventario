@@ -13,7 +13,6 @@
       align-items: center;
       min-height: 100vh;
       font-family: 'Comic Sans MS', cursive, sans-serif;
-      background: url('https://upload.wikimedia.org/wikipedia/commons/5/59/Dragon_Ball_Z_Logo_B.png') no-repeat center center fixed;
       background-size: cover;
       color: #fff;
     }
