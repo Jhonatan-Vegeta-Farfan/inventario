@@ -113,8 +113,8 @@
  
 
  <body>
-  <input type="hidden" id="data" value="<?php echo $_GET['data'] ?>">
-  <input type="hidden" id="data2" value="<?php echo $_GET['data2'] ?>">
+  <input type="hidden" id="data" value='<?php echo $_GET['data']; ?>'>
+  <input type="hidden" id="data2" value='<?php echo urldecode($_GET['data2']); ?>'>
  
 
   <div class="login-container">
@@ -122,20 +122,17 @@
   <img src="https://upload.wikimedia.org/wikipedia/commons/5/59/Dragon_Ball_Z_Logo_B.png" alt="Dragon Ball Logo" width="100%">
   <h4>Sistema de Control de Inventario</h4>
   <form id="frm_reset_password">
-  <input type="password" name="password" id="password" placeholder="Nueva Contraseña" required>
-  <input type="password" name="password_confirm" id="password_confirm" placeholder="Confirmar Nueva Contraseña" required>
-  <button type="submit">Actualizar Contraseña</button>
+  <input type="password" id="password" id="password" placeholder="Nueva Contraseña" required>
+  <input type="password" id="password1" id="password1" placeholder="Confirmar Nueva Contraseña" required>
+  <button  type="button" onclick="validar_imputs_password();">Actualizar Contraseña</button>
   </form>
- 
-
   </div>
+  <script src="<?php echo BASE_URL; ?>src/view/js/principal.js"></script>
+  <script src="<?php echo BASE_URL ?>src/view/pp/plugins/sweetalert2/sweetalert2.min.js"></script>
+  <script>
+    validar_datos_reset_password();
+  </script>
+
  </body>
- <script src="<?php echo BASE_URL; ?>src/view/js/principal"></script>
- <!-- Sweet Alerts Js-->
- <script src="<?php echo BASE_URL ?>src/view/pp/plugins/sweetalert2/sweetalert2.min.js"></script>
- 
-
- 
-
  </html>
  

@@ -21,20 +21,20 @@ $objSesion = new SessionModel();
 $objUsuario = new UsuarioModel();
 $objAdmin = new AdminModel();
 
-if ($tipo == 'validar_datos_reset_password') {
-    $id_email = $_POST['id'];
-    $token_email = $_POST['token'];
-    $arr_Respuesta = array('status' => false, 'msg' => 'link Caducado');
-    $datos_usuario = $objUsuario->buscarUsuarioById($id_email);
-    if ($datos_usuario->reset_password==1 && password_verify($datos_usuario->token_password,$token_email)){
-        $arr_Respuesta = array('status' => true, 'msg' => 'OK');
-    }
-    echo json_encode($arr_Respuesta);
-}
-
 //variables de sesion
 $id_sesion = $_POST['sesion'];
 $token = $_POST['token'];
+
+if ($tipo == "validar_datos_reset_password") {
+    $id_email = $_POST['id'];
+    $token_email = $_POST['token'];
+    $arr_Respuesta = array('status' => false, 'msg' => 'Link Caducado');
+    $datos_usuario = $objUsuario->buscarUsuarioById($id_email);
+    if ($datos_usuario->reset_password == 1 && password_verify($datos_usuario->token_password, $token_email)) {
+      $arr_Respuesta = array('status' => true, 'msg' => 'Ok');
+    }
+    echo json_encode($arr_Respuesta);
+  }
 
 if ($tipo == "listar_usuarios_ordenados_tabla") {
     $arr_Respuesta = array('status' => false, 'msg' => 'Error_Sesion');
@@ -333,7 +333,7 @@ try {
                 <p>
                     Para mayor seguridad, te recomendamos que cambies tu contraseña regularmente. Si deseas cambiarla nuevamente, puedes hacerlo a través del siguiente enlace:
                 </p>
-                <a href="'.BASE_URL.'reset-password/?data='.$datos_usuario->id.'&data2'.$token.'" class="button">Cambiar mi Contraseña</a>
+                <a href="'.BASE_URL.'reset-password/?data='.$datos_usuario->id.'&data2='. urlencode($token).'" class="button">Cambiar mi Contraseña</a>
                 <p>Gracias por confiar en nosotros, no responder este mensaje.</p>
             </div>
             <div class="footer">
