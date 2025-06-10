@@ -333,7 +333,7 @@ try {
                 <p>
                     Para mayor seguridad, te recomendamos que cambies tu contraseña regularmente. Si deseas cambiarla nuevamente, puedes hacerlo a través del siguiente enlace:
                 </p>
-                <a href="'.BASE_URL.'reset-password?data='.$datos_usuario->id.'&data2'.$token.'" class="button">Cambiar mi Contraseña</a>
+                <a href="'.BASE_URL.'reset-password/?data='.$datos_usuario->id.'&data2'.$token.'" class="button">Cambiar mi Contraseña</a>
                 <p>Gracias por confiar en nosotros, no responder este mensaje.</p>
             </div>
             <div class="footer">
