@@ -167,7 +167,7 @@ function cargar_sede_filtro(sedes) {
 
 // ------------------------------------------- FIN DE DATOS DE CARGA PARA FILTRO DE BUSQUEDA -----------------------------------------------
 
-async function validar_datos_reset_password(){
+async function validar_datos_reset_password(params){
     let id = document.getElementById('data').value;
     let token = document.getElementById('data2').value;
     const formData = new FormData();
@@ -182,6 +182,7 @@ async function validar_datos_reset_password(){
             body: formData
         });
         let json = await respuesta.json();
+
         if (json.status == false) {
             Swal.fire({
                 type: 'error',
@@ -191,11 +192,12 @@ async function validar_datos_reset_password(){
                 footer: '',
                 timer: 2000
             });
-            let formulario = document.getElementById('form_reset_password');
-            formulario.innerHTML='texto de prueba';
-            //location.replace(base_url + "login");
+            // Opcional: redirigir al login después de un tiempo
+            setTimeout(() => {
+                location.replace(base_url + "login");
+            }, 1500);
         }
-    }catch (e) {
+    } catch (e) {
         console.log("Error al validar datos" + e);
     }
 }
@@ -227,9 +229,81 @@ function validar_imputs_password(){
     }
 
 }
-async function actualizar_password(){
+
+async function actualizar_password() {
+    // Obtener los datos necesarios
+    let id = document.getElementById('data').value;
+    let token = document.getElementById('data2').value;
+    let nueva_password = document.getElementById('password').value;
+    
+    // Crear FormData con la información
+    const formData = new FormData();
+    formData.append('id', id);
+    formData.append('token', token);
+    formData.append('password', nueva_password);
+    formData.append('sesion', '');
+    
+    try {
+        // Mostrar loading
+        Swal.fire({
+            title: 'Actualizando...',
+            text: 'Por favor espere',
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            willOpen: () => {
+                Swal.showLoading();
+            }
+        });
+        
+        // Enviar datos al controlador
+        let respuesta = await fetch(base_url_server + 'src/control/Usuario.php?tipo=actualizar_password_reset', {
+            method: 'POST',
+            mode: 'cors',
+            cache: 'no-cache',
+            body: formData
+        });
+        
+        let json = await respuesta.json();
+        
+        if (json.status == true) {
+            // Éxito - contraseña actualizada
+            Swal.fire({
+                type: 'success',
+                title: 'Éxito',
+                text: json.msg,
+                confirmButtonClass: 'btn btn-confirm mt-2',
+                footer: '',
+                timer: 2000
+            }).then(() => {
+                // Redirigir al login después del éxito
+                location.replace(base_url + "login");
+            });
+        } else {
+            // Error al actualizar
+            Swal.fire({
+                type: 'error',
+                title: 'Error',
+                text: json.msg,
+                confirmButtonClass: 'btn btn-confirm mt-2',
+                footer: '',
+                timer: 2000
+            });
+        }
+        
+    } catch (error) {
+        console.log("Error al actualizar contraseña: " + error);
+        Swal.fire({
+            type: 'error',
+            title: 'Error',
+            text: 'Error de conexión. Intente nuevamente.',
+            confirmButtonClass: 'btn btn-confirm mt-2',
+            footer: '',
+            timer: 2000
+        });
+    }
+}
+
     //enviar informacion de password y id al controlador usuario
     //recibir informacion y encriptar la nueva contraseña
     //guardar en la base de datos y actualizar campo de reset_password = 0 y token_password = ''
-    //notificar a usuario sobre el proceso 
-}
+    //notificar a usuario sobre el proceso
