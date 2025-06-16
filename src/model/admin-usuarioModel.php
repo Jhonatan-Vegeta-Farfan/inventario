@@ -10,7 +10,7 @@ class UsuarioModel
         $this->conexion = new Conexion();
         $this->conexion = $this->conexion->connect();
     }
-    public function registrarUsuario($dni, $apellidos_nombres,$correo, $telefono,$password)
+    public function registrarUsuario($dni, $apellidos_nombres,$correo, $telefono, $password)
     {
         $password_secure = password_hash($password, PASSWORD_DEFAULT); // Hash de la contraseña
         $sql = $this->conexion->query("INSERT INTO usuarios (dni, nombres_apellidos, correo, telefono, password) VALUES ('$dni','$apellidos_nombres','$correo','$telefono', '$password_secure')");
@@ -29,12 +29,6 @@ class UsuarioModel
     public function actualizarPassword($id, $password)
     {
         $sql = $this->conexion->query("UPDATE usuarios SET password ='$password' WHERE id='$id'");
-        return $sql;
-    }
-
-    public function updateResetPassword($id,$token,$estado)
-    {
-        $sql = $this->conexion->query("UPDATE usuarios SET token_password ='$token', reset_password='$estado' WHERE id='$id'");
         return $sql;
     }
 

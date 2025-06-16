@@ -1,20 +1,9 @@
 <?php
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\SMTP;
-use PHPMailer\PHPMailer\Exception;
-
-
 session_start();
 require_once('../model/admin-sesionModel.php');
 require_once('../model/admin-usuarioModel.php');
 require_once('../model/adminModel.php');
 $tipo = $_GET['tipo'];
-
-require '../../vendor/autoload.php';
-
-require '../../vendor/phpmailer/phpmailer/src/Exception.php';
-require '../../vendor/phpmailer/phpmailer/src/PHPMailer.php';
-require '../../vendor/phpmailer/phpmailer/src/SMTP.php';
 
 //instanciar la clase categoria model
 $objSesion = new SessionModel();
@@ -93,7 +82,7 @@ if ($tipo == "registrar") {
                 if ($arr_Usuario) {
                     $arr_Respuesta = array('status' => false, 'mensaje' => 'Registro Fallido, Usuario ya se encuentra registrado');
                 } else {
-                    $id_usuario = $objUsuario->registrarUsuario($dni, $apellidos_nombres, $correo, $telefono,$password );
+                    $id_usuario = $objUsuario->registrarUsuario($dni, $apellidos_nombres, $correo, $telefono, $password);
                     if ($id_usuario > 0) {
                         // array con los id de los sistemas al que tendra el acceso con su rol registrado
                         // caso de administrador y director
@@ -166,6 +155,7 @@ if ($tipo == "reiniciar_password") {
     }
     echo json_encode($arr_Respuesta);
 }
+<<<<<<< Updated upstream
 if($tipo =="sent_email_password"){
     $arr_Respuesta = array('status' => false, 'msg' => 'Error_Sesion');
     if ($objSesion->verificar_sesion_si_activa($id_sesion, $token)){
@@ -358,3 +348,5 @@ try {
         //print_r($token);//
     }
 }
+=======
+>>>>>>> Stashed changes
