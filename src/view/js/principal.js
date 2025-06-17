@@ -187,10 +187,10 @@ async function validar_datos_reset_password(params){
             Swal.fire({
                 type: 'error',
                 title: 'Error de Link',
-                text: "Link Caducado, Vefique su correo",
+                text: "El tiempo de Espera a Caducado, Vefique su correo",
                 confirmButtonClass: 'btn btn-confirm mt-2',
                 footer: '',
-                timer: 2000
+                timer: 5000
             });
             // Opcional: redirigir al login después de un tiempo
             setTimeout(() => {
