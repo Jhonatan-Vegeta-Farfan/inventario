@@ -37,6 +37,7 @@ if ($tipo == "validar_datos_reset_password") {
     echo json_encode($arr_Respuesta);
   }
 
+  //tarea
 // funcion para actualizar contraseña
 if ($tipo == "actualizar_password_reset") {
     $id_usuario = $_POST['id'];

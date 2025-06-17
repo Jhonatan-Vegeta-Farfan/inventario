@@ -26,6 +26,8 @@ class UsuarioModel
         $sql = $this->conexion->query("UPDATE usuarios SET dni='$dni',nombres_apellidos='$nombres_apellidos',correo='$correo',telefono='$telefono',estado ='$estado' WHERE id='$id'");
         return $sql;
     }
+
+    //tarea
     // Método mejorado para actualizar contraseña con encriptación
     public function actualizarPassword($id, $password)
     {
@@ -34,7 +36,7 @@ class UsuarioModel
         return $sql;
     }
 
-
+//tarea
     // Nuevo método para actualizar contraseña y limpiar datos de reset
     public function actualizarPasswordYLimpiarReset($id, $password)
     {

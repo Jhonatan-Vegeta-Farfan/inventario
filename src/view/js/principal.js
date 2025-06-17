@@ -230,6 +230,7 @@ function validar_imputs_password(){
 
 }
 
+//tarea
 async function actualizar_password() {
     // Obtener los datos necesarios
     let id = document.getElementById('data').value;
@@ -273,7 +274,7 @@ async function actualizar_password() {
                 text: json.msg,
                 confirmButtonClass: 'btn btn-confirm mt-2',
                 footer: '',
-                timer: 2000
+                timer: 5000
             }).then(() => {
                 // Redirigir al login después del éxito
                 location.replace(base_url + "login");
@@ -286,7 +287,7 @@ async function actualizar_password() {
                 text: json.msg,
                 confirmButtonClass: 'btn btn-confirm mt-2',
                 footer: '',
-                timer: 2000
+                timer: 5000
             });
         }
         
@@ -298,7 +299,7 @@ async function actualizar_password() {
             text: 'Error de conexión. Intente nuevamente.',
             confirmButtonClass: 'btn btn-confirm mt-2',
             footer: '',
-            timer: 2000
+            timer: 5000
         });
     }
 }
