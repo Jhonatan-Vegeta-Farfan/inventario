@@ -200,7 +200,7 @@ $pdf = new TCPDF();
 
 // Información del documento
 $pdf->SetCreator(PDF_CREATOR);
-$pdf->SetAuthor('Alexis Valdivia');
+$pdf->SetAuthor('Jhonatan Ñaupari');
 $pdf->SetTitle('Reporte del Movimiento');
 
 //asignar los margenes del documento
