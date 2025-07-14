@@ -46,6 +46,8 @@ if ($err) {
             h2 {
                 text-align: center;
                 text-transform: uppercase;
+                margin-bottom: 30px;
+                font-size: 18px;
             }
             .info {
                 margin-top: 30px;
@@ -53,6 +55,7 @@ if ($err) {
             }
             .info p {
                 margin: 8px 0;
+                font-size: 14px;
             }
             .bold {
                 font-weight: bold;
@@ -64,22 +67,50 @@ if ($err) {
             }
             th, td {
                 border: 1px solid #000;
-                padding: 6px;
+                padding: 8px;
                 text-align: center;
-                font-size: 14px;
+                font-size: 12px;
+            }
+            th {
+                background-color: #f0f0f0;
+                font-weight: bold;
             }
             .signature {
-                margin-top: 80px;
-                display: flex;
-                justify-content: space-between;
+                margin-top: 50px;
+                display: table;
+                width: 100%;
+                page-break-inside: avoid;
             }
-            .signature div {
+            .signature-left, .signature-right {
+                display: table-cell;
+                width: 48%;
                 text-align: center;
-                width: 45%;
+                vertical-align: top;
+                padding: 0 10px;
+            }
+            .signature-left {
+                border-right: 1px solid transparent;
+            }
+            .signature-line {
+                margin: 0 0 10px 0;
+                font-size: 12px;
+                text-align: center;
+            }
+            .signature-title {
+                margin: 0 0 15px 0;
+                font-size: 12px;
+                font-weight: bold;
+                text-align: center;
+            }
+            .signature-field {
+                margin: 8px 0;
+                font-size: 11px;
+                text-align: left;
+                padding: 0 5px;
             }
             .date {
                 text-align: right;
-                margin-top: 20px;
+                margin-top: 30px;
                 font-size: 14px;
             }
         </style>
@@ -114,12 +145,12 @@ if ($err) {
         foreach ($respuesta->detalle as $bien) {
             $contenido_pdf .= "<tr>";
             $contenido_pdf .= "<td>" . $contador . "</td>";
-            $contenido_pdf .= "<td>" . $bien->cod_patrimonial . "</td>";
-            $contenido_pdf .= "<td>" . $bien->denominacion . "</td>";
-            $contenido_pdf .= "<td>" . $bien->marca . "</td>";
-            $contenido_pdf .= "<td>" . $bien->color . "</td>";
-            $contenido_pdf .= "<td>" . $bien->modelo . "</td>";
-            $contenido_pdf .= "<td>" . $bien->estado_conservacion . "</td>";
+            $contenido_pdf .= "<td>" . htmlspecialchars($bien->cod_patrimonial) . "</td>";
+            $contenido_pdf .= "<td>" . htmlspecialchars($bien->denominacion) . "</td>";
+            $contenido_pdf .= "<td>" . htmlspecialchars($bien->marca) . "</td>";
+            $contenido_pdf .= "<td>" . htmlspecialchars($bien->color) . "</td>";
+            $contenido_pdf .= "<td>" . htmlspecialchars($bien->modelo) . "</td>";
+            $contenido_pdf .= "<td>" . htmlspecialchars($bien->estado_conservacion) . "</td>";
             $contenido_pdf .= "</tr>";
             $contador++;
         }
@@ -139,7 +170,7 @@ if ($err) {
         IntlDateFormatter::NONE,
         "America/Lima",
         IntlDateFormatter::GREGORIAN,
-        "d 'de' MMMM 'del\' y"
+        "d 'de' MMMM 'del' y"
     );
 
     // Crear el objeto DateTime con zona horaria Lima
@@ -151,12 +182,19 @@ if ($err) {
             Ayacucho, ' . $fechaFormateada . '
         </div>
         <div class="signature">
-            <div>
-                <p>------------------------------</p>
-                <p>ENTREGUE CONFORME</p>
-            
-                <p>------------------------------</p>
-                <p>RECIBÍ CONFORME</p>
+            <div class="signature-left">
+                <p class="signature-line">_____________________________</p>
+                <p class="signature-title"><strong>ENTREGUÉ CONFORME</strong></p>
+                <p class="signature-field">Nombre: _________________________</p>
+                <p class="signature-field">DNI: _____________________________</p>
+                <p class="signature-field">Firma: ___________________________</p>
+            </div>
+            <div class="signature-right">
+                <p class="signature-line">_____________________________</p>
+                <p class="signature-title"><strong>RECIBÍ CONFORME</strong></p>
+                <p class="signature-field">Nombre: _________________________</p>
+                <p class="signature-field">DNI: _____________________________</p>
+                <p class="signature-field">Firma: ___________________________</p>
             </div>
         </div>
     </body>
@@ -164,19 +202,127 @@ if ($err) {
 
     require_once('./vendor/tecnickcom/tcpdf/tcpdf.php');
 
-    // Crear nuevo PDF 
-    $pdf = new TCPDF();
+    // Clase personalizada para agregar header y footer
+    class MYPDF extends TCPDF {
+        
+        // Header personalizado
+        public function Header() {
+            // Obtener las dimensiones de la página
+            $pageWidth = $this->getPageWidth();
+            $leftMargin = $this->getMargins()['left'];
+            $rightMargin = $this->getMargins()['right'];
+            
+            // Calcular el ancho disponible para el contenido
+            $availableWidth = $pageWidth - $leftMargin - $rightMargin;
+            
+            // Definir el tamaño de los logos
+            $logoWidth = 18;
+            $logoHeight = 18;
+            $headerHeight = 20;
+            $headerY = 10;
+            
+            // Posiciones de los logos
+            $escudoX = $leftMargin;
+            $logoDerechoX = $pageWidth - $rightMargin - $logoWidth;
+            
+            // Colocar los logos
+            $this->Image('https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/Escudo_nacional_del_Per%C3%BA.svg/1200px-Escudo_nacional_del_Per%C3%BA.svg.png', 
+                        $escudoX, $headerY + 2, $logoWidth, $logoHeight);
+            
+            $this->Image('https://www.iestphuanta.edu.pe/sacademica/img/logo1.png', 
+                        $logoDerechoX, $headerY + 2, $logoWidth, $logoHeight);
+            
+            // Calcular el ancho del rectángulo gris (entre los logos)
+            $rectX = $leftMargin + $logoWidth + 3;
+            $rectWidth = $availableWidth - (2 * $logoWidth) - 6; // 6 = espacios de 3px a cada lado
+            
+            // Fondo gris para el header
+            $this->SetFillColor(128, 128, 128);
+            $this->Rect($rectX, $headerY, $rectWidth, $headerHeight, 'F');
+            
+            // Configurar texto blanco para el header
+            $this->SetTextColor(255, 255, 255);
+            
+            // Sección "PERÚ" - izquierda del rectángulo
+            $this->SetFont('helvetica', 'B', 11);
+            $peruX = $rectX + 5;
+            $peruWidth = 25;
+            $this->SetXY($peruX, $headerY + 6);
+            $this->Cell($peruWidth, 8, 'PERÚ', 0, 0, 'C', false);
+            
+            // Primera línea separadora vertical
+            $this->SetDrawColor(255, 255, 255);
+            $this->SetLineWidth(0.5);
+            $separador1X = $peruX + $peruWidth + 3;
+            $this->Line($separador1X, $headerY + 2, $separador1X, $headerY + $headerHeight - 2);
+            
+            // Sección "Ministerio de Educación" - centro izquierda
+            $this->SetFont('helvetica', '', 8);
+            $ministerioX = $separador1X + 5;
+            $ministerioWidth = 45;
+            $this->SetXY($ministerioX, $headerY + 4);
+            $this->Cell($ministerioWidth, 4, 'Ministerio', 0, 0, 'C', false);
+            $this->SetXY($ministerioX, $headerY + 8);
+            $this->Cell($ministerioWidth, 4, 'de Educación', 0, 0, 'C', false);
+            
+            // Segunda línea separadora vertical
+            $separador2X = $ministerioX + $ministerioWidth + 5;
+            $this->Line($separador2X, $headerY + 2, $separador2X, $headerY + $headerHeight - 2);
+            
+            // Sección principal "Dirección Regional de Educación Ayacucho" - centro derecha
+            $this->SetFont('helvetica', '', 8);
+            $direccionX = $separador2X + 5;
+            $direccionWidth = $rectX + $rectWidth - $direccionX - 5; // Calcular el ancho restante
+            $this->SetXY($direccionX, $headerY + 4);
+            $this->Cell($direccionWidth, 4, 'Dirección Regional de Educación', 0, 0, 'C', false);
+            $this->SetXY($direccionX, $headerY + 8);
+            $this->Cell($direccionWidth, 4, 'Ayacucho', 0, 0, 'C', false);
+            
+            // Restablecer color de texto a negro para el contenido
+            $this->SetTextColor(0, 0, 0);
+            
+            // Salto de línea después del header
+            $this->Ln($headerHeight + 10);
+        }
+        
+        // Footer personalizado
+        public function Footer() {
+            // Posición a 15 mm del final
+            $this->SetY(-15);
+            
+            // Línea separadora
+            $this->SetDrawColor(0, 0, 0);
+            $this->SetLineWidth(0.2);
+            $this->Line($this->getMargins()['left'], $this->GetY(), 
+                       $this->getPageWidth() - $this->getMargins()['right'], $this->GetY());
+            $this->Ln(2);
+            
+            // Fuente del footer
+            $this->SetFont('helvetica', 'I', 8);
+            $this->SetTextColor(0, 0, 0);
+            
+            // Texto del footer con número de página
+            $this->Cell(0, 10, 'Sistema de Gestión de Bienes Patrimoniales - Página '.$this->getAliasNumPage().'/'.$this->getAliasNbPages(), 0, false, 'C', 0, '', 0, false, 'T', 'M');
+        }
+    }
+
+    // Crear nuevo PDF con la clase personalizada
+    $pdf = new MYPDF();
 
     // Información del documento
     $pdf->SetCreator(PDF_CREATOR);
     $pdf->SetAuthor('Jhonatan Ñaupari Farfan');
     $pdf->SetTitle('Reporte del Movimiento');
+    $pdf->SetSubject('Papeleta de Rotación de Bienes');
+    $pdf->SetKeywords('PDF, bienes, patrimoniales, rotación');
 
     // Asignar los márgenes del documento
-    $pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
+    $pdf->SetMargins(15, 40, 15); // Izquierda, Superior, Derecha
+    $pdf->SetHeaderMargin(5);
+    $pdf->SetFooterMargin(10);
 
     // Asignar salto de página automático
-    $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+    $pdf->SetAutoPageBreak(TRUE, 35); // Aumentado el margen inferior para las firmas
 
     // Establecer fuente
     $pdf->SetFont('helvetica', '', 12);
@@ -185,9 +331,9 @@ if ($err) {
     $pdf->AddPage();
 
     // Output the HTML content
-    $pdf->writeHTML($contenido_pdf);
+    $pdf->writeHTML($contenido_pdf, true, false, true, false, '');
 
     // Close and output PDF document
-    $pdf->Output('example_006.pdf', 'I');
+    $pdf->Output('papeleta_rotacion_bienes_' . date('Y-m-d_H-i-s') . '.pdf', 'I');
 }
 ?>
