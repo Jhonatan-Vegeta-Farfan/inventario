@@ -80,16 +80,14 @@ if ($err) {
                 display: table;
                 width: 100%;
                 page-break-inside: avoid;
+                table-layout: fixed;
             }
             .signature-left, .signature-right {
                 display: table-cell;
-                width: 48%;
+                width: 50%;
                 text-align: center;
                 vertical-align: top;
-                padding: 0 10px;
-            }
-            .signature-left {
-                border-right: 1px solid transparent;
+                padding: 0 15px;
             }
             .signature-line {
                 margin: 0 0 10px 0;
@@ -244,11 +242,11 @@ if ($err) {
             $this->SetTextColor(255, 255, 255);
             
             // Sección "PERÚ" - izquierda del rectángulo
-            $this->SetFont('helvetica', 'B', 11);
+            $this->SetFont('helvetica', 'B', 20);
             $peruX = $rectX + 5;
             $peruWidth = 25;
             $this->SetXY($peruX, $headerY + 6);
-            $this->Cell($peruWidth, 8, 'PERÚ', 0, 0, 'C', false);
+            $this->Cell($peruWidth, 8, 'PERÚ', 0, 0, '', false);
             
             // Primera línea separadora vertical
             $this->SetDrawColor(255, 255, 255);
@@ -257,26 +255,26 @@ if ($err) {
             $this->Line($separador1X, $headerY + 2, $separador1X, $headerY + $headerHeight - 2);
             
             // Sección "Ministerio de Educación" - centro izquierda
-            $this->SetFont('helvetica', '', 8);
-            $ministerioX = $separador1X + 5;
-            $ministerioWidth = 45;
+            $this->SetFont('helvetica', '', 11);
+            $ministerioX = $separador1X + 2;
+            $ministerioWidth = 30;
             $this->SetXY($ministerioX, $headerY + 4);
-            $this->Cell($ministerioWidth, 4, 'Ministerio', 0, 0, 'C', false);
+            $this->Cell($ministerioWidth, 4, 'Ministerio', 0, 0, '', false);
             $this->SetXY($ministerioX, $headerY + 8);
-            $this->Cell($ministerioWidth, 4, 'de Educación', 0, 0, 'C', false);
+            $this->Cell($ministerioWidth, 4, 'de Educación', 0, 0, '', false);
             
             // Segunda línea separadora vertical
-            $separador2X = $ministerioX + $ministerioWidth + 5;
+            $separador2X = $ministerioX + $ministerioWidth + 2;
             $this->Line($separador2X, $headerY + 2, $separador2X, $headerY + $headerHeight - 2);
             
             // Sección principal "Dirección Regional de Educación Ayacucho" - centro derecha
-            $this->SetFont('helvetica', '', 8);
+            $this->SetFont('helvetica', '', 11);
             $direccionX = $separador2X + 5;
             $direccionWidth = $rectX + $rectWidth - $direccionX - 5; // Calcular el ancho restante
             $this->SetXY($direccionX, $headerY + 4);
-            $this->Cell($direccionWidth, 4, 'Dirección Regional de Educación', 0, 0, 'C', false);
+            $this->Cell($direccionWidth, 4, 'Dirección Regional de Educación', 0, 0, '', false);
             $this->SetXY($direccionX, $headerY + 8);
-            $this->Cell($direccionWidth, 4, 'Ayacucho', 0, 0, 'C', false);
+            $this->Cell($direccionWidth, 4, 'Ayacucho', 0, 0, '', false);
             
             // Restablecer color de texto a negro para el contenido
             $this->SetTextColor(0, 0, 0);
