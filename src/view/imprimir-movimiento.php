@@ -323,7 +323,7 @@ if ($err) {
     $pdf->SetAutoPageBreak(TRUE, 35); // Aumentado el margen inferior para las firmas
 
     // Establecer fuente
-    $pdf->SetFont('helvetica', '', 12);
+    $pdf->SetFont('helvetica', '', 11);
 
     // Agregar una página
     $pdf->AddPage();
