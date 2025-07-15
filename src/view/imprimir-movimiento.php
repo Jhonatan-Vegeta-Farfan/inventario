@@ -31,7 +31,8 @@ if ($err) {
     exit; // Asegúrate de salir si hay un error
 } else {
     $respuesta = json_decode($response); // En caso de funcionar correctamente
-
+    
+    $contenido_pdf = '';
     $contenido_pdf = '
     <!DOCTYPE html>
     <html lang="es">
