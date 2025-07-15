@@ -334,4 +334,5 @@ if ($err) {
     // Close and output PDF document
     $pdf->Output('papeleta_rotacion_bienes_' . date('Y-m-d_H-i-s') . '.pdf', 'I');
 }
+
 ?>
