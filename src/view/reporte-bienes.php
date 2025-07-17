@@ -13,11 +13,11 @@ $activeWorksheet->setCellValue('A1', 'Hola Mundo !');
 $activeWorksheet->setCellValue('A2', 'DNI');
 $activeWorksheet->setCellValue('B2', '77654567');
 $activeWorksheet->setCellValue('A3', 'nombre');
-$activeWorksheet->setCellValue('B3', 'yanet');
+$activeWorksheet->setCellValue('B3', 'JHONATAN');
 
-/*header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 header('Content-Disposition: attachment;filename="hello_world.xlsx"');
-header('Cache-Control: max-age=0');*/
+header('Cache-Control: max-age=0');
 
 /*for ($i =1; $i <= 10; $i++) { 
     $activeWorksheet->setCellValue('A1'. $i, $i);
