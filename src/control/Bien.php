@@ -227,13 +227,18 @@ if ($tipo == "datos_registro") {
     }
     echo json_encode($arr_Respuesta);
 }
-if ($tipo == "listarBienes") {
-        $arr_Respuesta = array('status' => false, 'msg' => 'Error_Sesion');
-    if ($objSesion->verificar_sesion_si_activa($id_sesion, $token)){
-        $arr_Bienes = $objBien->listarBienes();
-        $arr_Respuesta['bienes'] = $arr_Bienes;
+
+if ($tipo == "buscar_bienes") {
+    $arr_Respuesta = array('status' => false, 'msg' => 'Error_sesion');
+
+    if ($objSesion->verificar_sesion_si_activa($id_sesion, $token)) {
+
+        $bienes = $objBien->buscarTodosLosBienes();
+
         $arr_Respuesta['status'] = true;
         $arr_Respuesta['msg'] = 'correcto';
-    } 
+        $arr_Respuesta['bienes'] = $bienes;
+    }
+
     echo json_encode($arr_Respuesta);
 }

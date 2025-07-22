@@ -4,7 +4,7 @@ class vistaModelo
     protected static function obtener_vista($vista)
     {
 
-        $palabras_permitidas_n1 = ['inicio', 'usuarios', 'nuevo-usuario', 'instituciones', 'nueva-institucion', 'ambientes', 'nuevo-ambiente', 'bienes',  'nuevo-bien', 'movimientos', 'nuevo-movimiento', 'imprimir-movimiento' , 'reporte-bienes'];
+        $palabras_permitidas_n1 = ['inicio', 'reporte-usuarios', 'reporte-ambientes', 'reporte-instituciones', 'imprimir-movimiento', 'usuarios', 'nuevo-usuario', 'instituciones', 'nueva-institucion', 'ambientes', 'nuevo-ambiente', 'bienes',  'nuevo-bien', 'movimientos', 'nuevo-movimiento','reporte-bienes'];
 
         if (in_array($vista, $palabras_permitidas_n1)) {
 
@@ -13,11 +13,11 @@ class vistaModelo
             } else {
                 $contenido = "404";
             }
-        } elseif ($vista == "inicio" || $vista == "index") {
+        } elseif ($vista == "inicio" || $vista == "index" ) {
             $contenido = "inicio.php";
         } elseif ($vista == "login") {
             $contenido = "login";
-        }  elseif ($vista == "reset-password") {
+        } elseif ($vista == "reset-password" ) {
             $contenido = "reset-password";
         } else {
             $contenido = "404";
