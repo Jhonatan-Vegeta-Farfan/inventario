@@ -173,6 +173,7 @@ if ($tipo == "send_email_password") {
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
         $mail->Port       = 465;                                    //TCP port to connect to; use 587 if you have set SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS
 
+
         //Recipients
         $mail->setFrom('inventario_jhonatannfarfan@dpweb2024.com', 'Cambio de contraseña - TB');
         $mail->addAddress($datos_usuario->correo, $datos_usuario->nombres_apellidos);     //Add a recipient
@@ -319,7 +320,6 @@ if ($tipo == "send_email_password") {
         </div>
     </body>
     </html>
-    
     ';
 
     $mail->send();
@@ -361,50 +361,54 @@ if ($id_usuario == "" || $nueva_password == "") {
 echo json_encode($arr_Respuesta);
 }
 
+
+
 if ($tipo == "generar_nuevo_link_password") {
-    $id = $_POST['id'];
-    $arr_Respuesta = ['status' => false, 'msg' => 'No se pudo generar enlace'];
-  
-    $datos_usuario = $objUsuario->buscarUsuarioById($id);
-    if ($datos_usuario) {
-      $llave = $objAdmin->generar_llave(30);
-      $token_hash = password_hash($llave, PASSWORD_DEFAULT);
-      $update = $objUsuario->updateResetPassword($id, $llave, 1);
-  
-      if ($update) {
-        // Enviar correo (reutiliza tu código de PHPMailer)
-        // (Puedes copiar-pegar tu bloque de $mail y solo cambia el mensaje)
-        $mail = new PHPMailer(true);
-  
-        try {
-          //Server settings
-          $mail->SMTPDebug = 0;                      //Enable verbose debug output
-          $mail->isSMTP();                                            //Send using SMTP
-          $mail->Host       = 'mail.dpweb2024.com';                     //Set the SMTP server to send through
-          $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
-          $mail->Username   = 'jhonatannfarfan@dpweb2024.com';                     //SMTP username
-          $mail->Password   = 'b,*?ccE-n1J7';                               //SMTP password
-          $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
-          $mail->Port       = 465;                                    //TCP port to connect to; use 587 if you have set SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS
-  
-          //Recipients
-          $mail->setFrom('inventario_jhonatannfarfan@dpweb2024.com', 'Cambio de contraseña - TB');
-          $mail->addAddress($datos_usuario->correo, $datos_usuario->nombres_apellidos);     //Add a recipient
-          /*$mail->addAddress('ellen@example.com');               //Name is optional
-      $mail->addReplyTo('info@example.com', 'Information');
-      $mail->addCC('cc@example.com');
-      $mail->addBCC('bcc@example.com');
-  
-      //Attachments
-      $mail->addAttachment('/var/tmp/file.tar.gz');         //Add attachments
-      $mail->addAttachment('/tmp/image.jpg', 'new.jpg');    //Optional name
-  
-      */
-          //Content
-          $mail->isHTML(true);
-          $mail->CharSet = 'UTF-8';                           //Set email format to HTML
-          $mail->Subject = 'Nuevo enlace para cambio de contraseña - IESTP Huanta';
-          $mail->Body    = '
+$id = $_POST['id'];
+$arr_Respuesta = ['status' => false, 'msg' => 'No se pudo generar enlace'];
+
+$datos_usuario = $objUsuario->buscarUsuarioById($id);
+if ($datos_usuario) {
+$llave = $objAdmin->generar_llave(30);
+$token_hash = password_hash($llave, PASSWORD_DEFAULT);
+$update = $objUsuario->updateResetPassword($id, $llave, 1);
+
+if ($update) {
+  // Enviar correo (reutiliza tu código de PHPMailer)
+  // (Puedes copiar-pegar tu bloque de $mail y solo cambia el mensaje)
+  $mail = new PHPMailer(true);
+
+    try {
+      //Server settings
+      $mail->SMTPDebug = 0;                      //Enable verbose debug output
+      $mail->isSMTP();                                            //Send using SMTP
+      $mail->Host       = 'mail.dpweb2024.com';                     //Set the SMTP server to send through
+      $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
+      $mail->Username   = 'jhonatannfarfan@dpweb2024.com';                     //SMTP username
+      $mail->Password   = 'b,*?ccE-n1J7';                               //SMTP password
+      $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
+      $mail->Port       = 465;                                    //TCP port to connect to; use 587 if you have set SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS
+
+      //Recipients
+      $mail->setFrom('inventario_jhonatannfarfan@dpweb2024.com', 'Cambio de contraseña - TB');
+      $mail->addAddress($datos_usuario->correo, $datos_usuario->nombres_apellidos);     //Add a recipient
+
+    /*$mail->addAddress('ellen@example.com');               //Name is optional
+$mail->addReplyTo('info@example.com', 'Information');
+$mail->addCC('cc@example.com');
+$mail->addBCC('bcc@example.com');
+
+//Attachments
+$mail->addAttachment('/var/tmp/file.tar.gz');         //Add attachments
+$mail->addAttachment('/tmp/image.jpg', 'new.jpg');    //Optional name
+
+*/
+    //Content
+    $mail->isHTML(true);
+    $mail->CharSet = 'UTF-8';                           //Set email format to HTML
+    $mail->Subject = 'Nuevo enlace para cambio de contraseña';
+    $mail->Body    = '
+
 
           <!DOCTYPE html>
           <html lang="es">
