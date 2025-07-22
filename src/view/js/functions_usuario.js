@@ -164,7 +164,7 @@ async function registrar_usuario() {
     let correo = document.querySelector('#correo').value;
     let telefono = document.querySelector('#telefono').value;
     let password = document.querySelector('#password').value;
-    if (dni == "" || apellidos_nombres == "" ||correo == "" || telefono == ""|| password == "") {
+    if (dni == "" || apellidos_nombres == "" ||correo == "" || telefono == "" || password == "") {
         Swal.fire({
             type: 'error',
             title: 'Error',
@@ -333,4 +333,3 @@ async function reniciar_password(id) {
 
 
 }
-

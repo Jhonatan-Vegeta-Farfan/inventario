@@ -22,7 +22,6 @@ class vistasControlador extends vistaModelo
             } else {
                 $respuesta = "login";
             }
-
         } else {
         if (isset($_GET['views'])) {
             $ruta = explode("/", $_GET['views']);
