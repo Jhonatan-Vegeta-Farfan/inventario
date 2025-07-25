@@ -1,3 +1,5 @@
+const { cache } = require("react");
+
 function numero_pagina(pagina) {
     document.getElementById('pagina').value = pagina;
     listar_usuariosOrdenados();
@@ -163,8 +165,7 @@ async function registrar_usuario() {
     let apellidos_nombres = document.querySelector('#apellidos_nombres').value;
     let correo = document.querySelector('#correo').value;
     let telefono = document.querySelector('#telefono').value;
-    let password = document.querySelector('#password').value;
-    if (dni == "" || apellidos_nombres == "" ||correo == "" || telefono == "" || password == "") {
+    if (dni == "" || apellidos_nombres == "" ||correo == "" || telefono == "") {
         Swal.fire({
             type: 'error',
             title: 'Error',
@@ -290,8 +291,8 @@ function reset_password(id) {
         }
     });
 }
-async function reniciar_password(id) {
 
+async function reniciar_password(id) {
     // generamos el formulario
     const formData = new FormData();
     formData.append('id', id);
@@ -330,6 +331,4 @@ async function reniciar_password(id) {
     } catch (e) {
         console.log("Error al actualizar periodo" + e);
     }
-
-
 }

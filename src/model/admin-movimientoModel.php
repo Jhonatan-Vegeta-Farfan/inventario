@@ -95,23 +95,12 @@ class MovimientoModel
         }
         return $arrRespuesta;
     }
-    public function listarTodosLosMovimientos()
-    {
-        $arrRespuesta = array();
-        $query = "
-        SELECT 
-            m.*, 
-            ins.nombre AS nombre_institucion,
-            ins.cod_modular AS cod_modular_institucion,
-            ins.ruc AS ruc_institucion
-        FROM movimientos m
-        LEFT JOIN institucion ins ON m.id_ies = ins.id
-        ORDER BY m.fecha_registro ASC
-    ";
-        $respuesta = $this->conexion->query($query);
-        while ($objeto = $respuesta->fetch_object()) {
-            array_push($arrRespuesta, $objeto);
+    public function listarMovimientos(){
+        $respues = array();
+        $sql = $this->conexion->query("SELECT * FROM movimientos");
+        while ($objeto = $sql->fetch_object()) {
+            array_push($respues, $objeto);
         }
-        return $arrRespuesta;
+        return $respues;
     }
 }

@@ -1,13 +1,15 @@
 <?php
-session_start();
-require_once __DIR__ . '/../../vendor/autoload.php';
+
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
+session_start();
 require_once('../model/admin-sesionModel.php');
 require_once('../model/admin-usuarioModel.php');
 require_once('../model/adminModel.php');
+require  '../../vendor/autoload.php' ;
+
 $tipo = $_GET['tipo'];
 
 //instanciar la clase categoria model
@@ -16,52 +18,57 @@ $objUsuario = new UsuarioModel();
 $objAdmin = new AdminModel();
 
 //variables de sesion
-$id_sesion = $_POST['sesion'];
-$token = $_POST['token'];
+$id_sesion = $_REQUEST['sesion'];
+$token = $_REQUEST['token'];
 
-if ($tipo == 'actualizar_password_reset') {
-    $id = $_POST['id'];
-    $token_email = $_POST['token'];
-    $password = $_POST['password'];
+//falta
+if($tipo == "restablecer_password"){
 
-    $arrRespuesta = array('status' => false, 'message' => 'Token inválido o expirado');
-     // Buscar usuario y validar token
-    $datos_usuario = $objUsuario->buscarUsuarioById($id);
-    if ($datos_usuario->reset_password == 1 && password_verify($datos_usuario->token_password, $token_email)) {
-        // Encriptar nueva contraseña
-        $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+        $arr_Respuesta = array('status' => false, 'msg' => 'Error al restablecer');
 
-        // Actualizar contraseña en base de datos
-        $actualizar = $objUsuario->actualizarPassword($id, $passwordHash);
-        if ($actualizar) {
-             // Limpiar campos de reset después de actualizar exitosamente
-            $limpiar_reset = $objUsuario->updateResetPassword($id, '', 0);
-            if ($limpiar_reset) {
-                $arrRespuesta = array('status' => true, 'message' => 'Contraseña actualizada correctamente');
+        if ($_POST) {
+            $id = $_POST['id'];
+            $NewPassword = $_POST['password'];
+            $hashedPassword = password_hash($NewPassword, PASSWORD_DEFAULT);
+
+            if ($id == "" || $NewPassword == "") {
+                $arr_Respuesta = array('status' => false, 'mensaje' => 'Error, campos vacíos');
             } else {
-                $arrRespuesta = array('status' => true, 'mensaje' => 'Contraseña actualizada correctamente');
+                //validar si existe el usuario con ese id
+                $arr_Usuario = $objUsuario->buscarUsuarioById($id);
+                if ($arr_Usuario){
+                    $operacion = $objUsuario->actualizarPassword($id, $hashedPassword);
+                    if ($operacion) {
+                        $tokenVacio = "";
+                        $nuevoEstado = 0;
+                        $operacion2 = $objUsuario->UpdateResetPassword($id, $tokenVacio, $nuevoEstado);
+                        if (!$operacion2) {
+                           $arr_Respuesta = array('status' => false, 'mensaje' => 'Error al limpiar token');
+                        }
+                        $arr_Respuesta = array('status' => true, 'mensaje' => 'Actualizado correctamente');
+                    } else {
+                        $arr_Respuesta = array('status' => false, 'mensaje' => 'Fallo al actualizar');
+                    }
+                    
+                } else {
+                   $arr_Respuesta = array('status' => false, 'mensaje' => 'Error, usuario no existe');
+                }
             }
-        } else {
-            $arrRespuesta = array('status' => false, 'mensaje' => 'Error al actualizar la contraseña');
         }
-
-    }
-    echo json_encode($arrRespuesta);
+         echo json_encode($arr_Respuesta);
 }
 
+if($tipo == "validar_datos_reset_password"){
+   $id_email = $_POST['id'];
+   $token_email = $_POST['token'];
 
-if ($tipo == 'validar_datos_reset_password') {
-    $id_email = $_POST['id'];
-    $token_email = $_POST['token'];
-
-    $arrRespuesta = array('status' => false, 'message' => 'Link Caducado');
-    $datos_usuario = $objUsuario->buscarUsuarioById($id_email);
-    if ($datos_usuario->reset_password == 1 && password_verify($datos_usuario->token_password, $token_email)) {
-        $arrRespuesta = array('status' => true, 'message' => 'Ok');
-    }
-    echo json_encode($arrRespuesta);
+   $arr_Respuesta = array('status'=> false, 'msg'=>'link caducado');
+   $datos_usuario = $objUsuario->buscarUsuarioById($id_email);
+   if($datos_usuario->reset_password == 1 && password_verify($datos_usuario->token_password, $token_email)){
+     $arr_Respuesta = array('status'=> true, 'msg'=>'ok');
+   }
+   echo json_encode($arr_Respuesta);
 }
-
 if ($tipo == "listar_usuarios_ordenados_tabla") {
     $arr_Respuesta = array('status' => false, 'msg' => 'Error_Sesion');
     if ($objSesion->verificar_sesion_si_activa($id_sesion, $token)) {
@@ -109,9 +116,9 @@ if ($tipo == "registrar") {
             $apellidos_nombres = $_POST['apellidos_nombres'];
             $correo = $_POST['correo'];
             $telefono = $_POST['telefono'];
-            $password = $_POST['password'];
+            $contraseniahash = password_hash($dni, PASSWORD_DEFAULT);
 
-            if ($dni == "" || $apellidos_nombres == "" || $correo == "" || $telefono == "" || $password == "") {
+            if ($dni == "" || $apellidos_nombres == "" || $correo == "" || $telefono == "") {
                 //repuesta
                 $arr_Respuesta = array('status' => false, 'mensaje' => 'Error, campos vacíos');
             } else {
@@ -119,7 +126,7 @@ if ($tipo == "registrar") {
                 if ($arr_Usuario) {
                     $arr_Respuesta = array('status' => false, 'mensaje' => 'Registro Fallido, Usuario ya se encuentra registrado');
                 } else {
-                    $id_usuario = $objUsuario->registrarUsuario($dni, $apellidos_nombres, $correo, $telefono, $password);
+                    $id_usuario = $objUsuario->registrarUsuario($dni, $apellidos_nombres, $correo, $telefono,$contraseniahash);
                     if ($id_usuario > 0) {
                         // array con los id de los sistemas al que tendra el acceso con su rol registrado
                         // caso de administrador y director
@@ -192,368 +199,79 @@ if ($tipo == "reiniciar_password") {
     }
     echo json_encode($arr_Respuesta);
 }
-if ($tipo == "sent_email_password") {
+
+if($tipo == "sent_email_password"){
+     $arr_Respuesta = array('status' => false, 'msg' => 'Error_Sesion');
+    if ($objSesion->verificar_sesion_si_activa($id_sesion, $token)) {
+            $datos_secion = $objSesion->buscarSesionLoginById($id_sesion);
+
+              //obtenemos los datos del usuario mediante el id de la sesion
+               $id_usuario = $datos_secion->id_usuario;
+               $datos_usuario = $objUsuario->buscarUsuarioById($id_usuario);
+               $correo_usuario = $datos_usuario->correo;
+               $nombre_usuario = $datos_usuario->nombres_apellidos;
+                
+                $llave = $objAdmin->generar_llave(30);
+                $token = password_hash($llave, PASSWORD_DEFAULT);
+                $update = $objUsuario->UpdateResetPassword($id_usuario,$llave,1);
+                if ($update) {
+                            //Create an instance; passing `true` enables exceptions
+                        //incluimos la plantilla de correo para el body email
+                        ob_start();
+                        include __DIR__ . '../../view/BodyEmail.php';
+                        $emailBody = ob_get_clean();
+                        
+                        //php mailer
+                        $mail = new PHPMailer(true);
+
+                        try {
+                            //Server settings
+                            $mail->SMTPDebug = 2;                      //Enable verbose debug output
+                            $mail->isSMTP();                                            //Send using SMTP
+                            $mail->Host       = 'mail.limon-cito.com';                     //Set the SMTP server to send through
+                            $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
+                            $mail->Username   = 'sisve_jota@limon-cito.com';                     //SMTP username
+                            $mail->Password   = 'jota123@@JOTA';                               //SMTP password
+                            $mail->SMTPSecure = 'ssl';            //Enable implicit TLS encryption
+                            $mail->Port       = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
+
+                            //Recipients
+                            $mail->setFrom('sisve_jota@limon-cito.com', 'Support Sisve app');
+                            $mail->addAddress($correo_usuario, $nombre_usuario);     //Add a recipient
+                            //Name is optional
+
+
+
+                            //Content
+                            $mail->isHTML(true);                                  //Set email format to HTML
+                            $mail->Subject = 'password reset request';
+
+        /*                   $file = fopen("../view/BodyEmail.php","r");
+                            $str = fread($file, filesize("../view/BodyEmail.php"));
+                            $str = trim($str);
+                            fclose($file); */
+
+                            $mail->Body    = $emailBody;
+                            $mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
+
+                            $mail->send();
+                            echo 'Correo enviado con éxito.';
+                        } catch (Exception $e) {
+                            echo "Error al enviar: {$mail->ErrorInfo}";
+                        }
+                }else{
+                    echo "fallo";
+                }
+    }
+}
+if($tipo == "listarUsuarios"){
     $arr_Respuesta = array('status' => false, 'msg' => 'Error_Sesion');
     if ($objSesion->verificar_sesion_si_activa($id_sesion, $token)) {
-        $datos_sesion = $objSesion->buscarSesionLoginById($id_sesion);
-        $datos_usuario = $objUsuario->buscarUsuarioById($datos_sesion->id_usuario);
-        $llave = $objAdmin->generar_llave(30);
+   $arr_usuarios = $objUsuario->listarUsuarios();
 
-        $token = password_hash($llave, PASSWORD_DEFAULT);
-        $update = $objUsuario->updateResetPassword($datos_sesion->id_usuario, $llave, 1);
-
-        if ($update) {
-            $mail = new PHPMailer(true);
-
-            try {
-                //Server settings
-                $mail->SMTPDebug = 0; // Cambié de SMTP::DEBUG_SERVER a 0 para producción
-                $mail->isSMTP();
-                $mail->Host = 'mail.importecsolutions.com';
-                $mail->SMTPAuth = true;
-                $mail->Username = 'alexisgvaldivia@importecsolutions.com';
-                $mail->Password = 'Agvt2006@';
-                $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-                $mail->Port = 465;
-
-                // CONFIGURACIÓN CRÍTICA PARA CARACTERES ESPECIALES
-                $mail->CharSet = 'UTF-8';
-                $mail->Encoding = 'base64';
-
-                //Recipients
-                $mail->setFrom('alexisgvaldivia@importecsolutions.com', 'Cambio de Contraseña - Xtreme AI');
-                $mail->addAddress($datos_usuario->correo, $datos_usuario->nombres_apellidos);
-
-                //Content
-                $mail->isHTML(true);
-                $mail->Subject = 'Restablece tu contraseña - XTREME AI';
-
-                // Generar URL para el reset (asegúrate de definir esta variable)
-                $url_reset = "https://tu-dominio.com/reset-password.php?token=" . urlencode($llave);
-
-                // CORREO
-                $mail->Body = '
-                        <!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Restablecer contraseña - XTREME AI</title>
-    <style>
-        body {
-            background-color: #0f1117;
-            font-family: "Segoe UI", "Helvetica Neue", sans-serif;
-            color: #e4e4e4;
-            margin: 0;
-            padding: 0;
-            line-height: 1.6;
-        }
-        .container {
-            max-width: 600px;
-            margin: 40px auto;
-            background-color: #1a1d26;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 0 30px rgba(0, 150, 255, 0.15);
-        }
-        .header {
-            background: linear-gradient(135deg, #262626, #041226);
-            padding: 30px;
-            text-align: center;
-        }
-        .logo-image {
-            display: block;
-            margin: 0 auto;
-            height: 60px;
-            max-width: 100%;
-            width: auto;
-        }
-        .tagline {
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.9);
-            margin: 10px 0 20px 0;
-            text-align: center;
-            font-weight: 500;
-        }
-        .security-badge {
-            background: rgba(255, 255, 255, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 20px;
-            padding: 8px 16px;
-            font-size: 12px;
-            color: white;
-            display: inline-block;
-            font-weight: 500;
-        }
-        .content {
-            padding: 40px;
-        }
-        .title {
-            font-size: 24px;
-            color: #00b4ff;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        .subtitle {
-            font-size: 18px;
-            color: #cfcfcf;
-            margin-bottom: 25px;
-            text-align: center;
-        }
-        .description {
-            font-size: 16px;
-            color: #cfcfcf;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-        .features {
-            display: table;
-            width: 100%;
-            margin: 30px 0;
-            table-layout: fixed;
-        }
-        .feature {
-            display: table-cell;
-            text-align: center;
-            padding: 20px 15px;
-            background: rgba(0, 180, 255, 0.05);
-            border-radius: 10px;
-            margin: 0 5px;
-            vertical-align: top;
-        }
-        .feature-icon {
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-        .feature-title {
-            font-size: 14px;
-            font-weight: bold;
-            color: #00b4ff;
-            margin-bottom: 5px;
-        }
-        .feature-desc {
-            font-size: 12px;
-            color: #999;
-        }
-        .button {
-            display: inline-block;
-            background: linear-gradient(135deg, #00b4ff, #006aff);
-            color: white;
-            text-decoration: none;
-            padding: 16px 32px;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
-            margin: 30px auto;
-            transition: all 0.3s ease;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(0, 180, 255, 0.3);
-        }
-        .button:hover {
-            background: linear-gradient(135deg, #0090dd, #0055cc);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 180, 255, 0.4);
-        }
-        .button-container {
-            text-align: center;
-            margin: 30px 0;
-        }
-        .security-info {
-            background: rgba(255, 193, 7, 0.1);
-            border-left: 4px solid #ffc107;
-            padding: 20px;
-            margin: 30px 0;
-            border-radius: 0 8px 8px 0;
-        }
-        .security-title {
-            font-size: 16px;
-            font-weight: bold;
-            color: #ffc107;
-            margin-bottom: 10px;
-        }
-        .security-text {
-            font-size: 14px;
-            color: #cfcfcf;
-            margin-bottom: 15px;
-        }
-        .backup-link {
-            background: rgba(0, 180, 255, 0.1);
-            padding: 15px;
-            border-radius: 8px;
-            margin: 20px 0;
-            font-size: 14px;
-            color: #cfcfcf;
-        }
-        .backup-url {
-            color: #00b4ff;
-            word-break: break-all;
-            font-family: monospace;
-        }
-        .footer {
-            background: #161922;
-            padding: 30px;
-            text-align: center;
-        }
-        .company-info {
-            margin-bottom: 20px;
-        }
-        .company-name {
-            font-size: 18px;
-            font-weight: bold;
-            color: #00b4ff;
-            margin-bottom: 5px;
-        }
-        .company-slogan {
-            font-style: italic;
-            color: #999;
-            margin-bottom: 15px;
-        }
-        .contact-info {
-            font-size: 12px;
-            color: #777;
-            margin-bottom: 20px;
-            line-height: 1.4;
-        }
-        .footer-links {
-            margin: 20px 0;
-        }
-        .footer-links a {
-            color: #00b4ff;
-            text-decoration: none;
-            margin: 0 10px;
-            font-size: 12px;
-        }
-        .footer-links a:hover {
-            text-decoration: underline;
-        }
-        .copyright {
-            font-size: 11px;
-            color: #ffffff;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #333;
-        }
-        @media screen and (max-width: 600px) {
-            .container {
-                margin: 20px 10px;
-            }
-            .content {
-                padding: 20px;
-            }
-            .features {
-                display: block;
-            }
-            .feature {
-                display: block;
-                margin: 10px 0;
-            }
-            .header {
-                padding: 20px;
-            }
-            .footer {
-                padding: 20px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <img src="https://drive.google.com/uc?export=dowload&id=1O6sQeUi1EUBq4AE3LJx3JrQmdrYlYigu" alt="XTREME AI - Cortes de Precisión Láser" style="display: block; margin: 0 auto; height: 100px; max-width: 280px; width: auto;" />
-            <div class="tagline">Cortes Láser de Precisión • MDF • Acrílico • Madera & Soluciones de Impresión </div>
-            <div class="security-badge">🔒 Verificación de Seguridad</div>
-        </div>
-        
-        <div class="content">
-            <div class="title">Solicitud de Cambio de Contraseña</div>
-            <div class="subtitle">Hola, <strong>' . $datos_usuario->nombres_apellidos . '</strong></div>
-            
-            <div class="description">
-                Hemos recibido una solicitud para cambiar la contraseña de tu cuenta en XTREME AI. Para garantizar la máxima seguridad de tu información y proyectos de corte láser e impresión, necesitamos verificar que realmente fuiste tú quien realizó esta solicitud.
-            </div>
-            
-            <div class="features">
-                <div class="feature">
-                    <div class="feature-icon">⚡</div>
-                    <div class="feature-title">Proceso Rápido</div>
-                    <div class="feature-desc">Solo tomará unos segundos completar el cambio de contraseña</div>
-                </div>
-                <div class="feature">
-                    <div class="feature-icon">🔐</div>
-                    <div class="feature-title">100% Seguro</div>
-                    <div class="feature-desc">Encriptación de nivel empresarial para proteger tu información</div>
-                </div>
-                <div class="feature">
-                    <div class="feature-icon">⏰</div>
-                    <div class="feature-title">Válido 2h</div>
-                    <div class="feature-desc">El enlace expira automáticamente por tu seguridad</div>
-                </div>
-            </div>
-            
-            <div class="button-container">
-                <a href="' . BASE_URL . 'reset-password/?data=' . $datos_usuario->id . '&data2=' . urlencode($token) . '" class="button" style="color: white">Cambiar Mi Contraseña</a>
-            </div>
-            
-            <div class="security-info">
-                <div class="security-title">Importante: Medidas de Seguridad</div>
-                <div class="security-text">
-                    Este enlace de verificación expirará automáticamente en <strong>24 horas</strong> por razones de seguridad. Si no solicitaste este cambio, puedes ignorar este correo de forma segura. Tu cuenta permanecerá protegida y no se realizarán cambios.
-                </div>
-            </div>
-            
-            <div class="backup-link">
-                <strong>¿Problemas con el botón?</strong> Copia y pega el siguiente enlace en tu navegador:<br>
-                <span class="backup-url">' . BASE_URL . 'reset-password/?data=' . $datos_usuario->id . '&data2=' . urlencode($token) . '</span>
-            </div>
-        </div>
-        
-        <div class="footer">
-            <div class="company-info">
-                <div class="company-name">XTREME AI</div>
-                <div class="company-slogan">"Precisión láser e innovación en cada proyecto"</div>
-                <div class="contact-info">
-                    Especialistas en Corte Láser & Impresión Digital<br>
-                    Av. San Martín 427,<br>
-                    a unos pasos de la comisaria<br>
-                    +51 934 717 131  | soporte@xtremeai.com
-                </div>
-            </div>
-            
-            <div class="footer-links">
-                <a href="#">Inicio</a>
-                <a href="#">Soporte 24/7</a>
-                <a href="#">Privacidad</a>
-                <a href="#">Términos</a>
-                <a href="#">Contacto</a>
-            </div>
-            
-            <div class="copyright">
-                ©XTREME AI. Todos los derechos reservados.<br>
-                Esta es una comunicación automática, no responder a este email.
-            </div>
-        </div>
-    </div>
-</body>
-</html>
-';
-
-                $result = $mail->send();
-
-                if ($result) {
-                    $arr_Respuesta = array('status' => true, 'msg' => 'Email enviado correctamente');
-                } else {
-                    $arr_Respuesta = array('status' => false, 'msg' => 'Error al enviar el email');
-                }
-
-            } catch (Exception $e) {
-                $arr_Respuesta = array('status' => false, 'msg' => 'Error: ' . $mail->ErrorInfo);
-            }
-        } else {
-            $arr_Respuesta = array('status' => false, 'msg' => 'Fallo al actualizar la base de datos');
-        }
+   $arr_Respuesta['usuarios'] = $arr_usuarios;
+   $arr_Respuesta['status'] = true;
+   $arr_Respuesta['msg'] = 'correcto';
     }
-
-    // Devolver respuesta JSON
-    header('Content-Type: application/json; charset=utf-8');
-    echo json_encode($arr_Respuesta, JSON_UNESCAPED_UNICODE);
+    echo json_encode($arr_Respuesta);
 }
