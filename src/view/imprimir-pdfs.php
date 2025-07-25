@@ -39,35 +39,43 @@ public function Header() {
 }
 
 public function Footer() {
-    $this->SetY(-20);
-    $this->SetX(120);
-    $this->SetFont('helvetica', '', 8);
-    $footer_html = '
-    <table border="0" cellpadding="1" cellspacing="0" width="100%">
-        <tr>
-            <!-- Columna Izquierda: URL -->
-            <td width="48%" align="center" valign="middle">
-                <a href="http://www.dreaya.gob.pe" style="color:#0000ff; text-decoration:underline; font-size:10pt;">www.dreaya.gob.pe</a>
-            </td>
-
-            <!-- Columna Central: Línea vertical roja -->
-            <!-- Truco: Usamos un div con un borde izquierdo dentro de una celda -->
-            <td width="4%" align="center">
-                <div style="border-left: 1px solid #C5232A; height: 15px;"> </div>
-            </td>
-
-            <!-- Columna Derecha: Información de contacto -->
-            <!-- Usamos entidades HTML para los iconos de teléfono (☎) y fax () -->
-            <td width="48%" align="left" valign="middle" style="font-size:8pt; line-height:1.4;">
-                Jr. 28 de Julio N° 383 - Huamanga<br>
-                ☎ (066) 31-2364<br>
-                 (066) 31-1395 Anexo 55001
-            </td>
-        </tr>
-    </table>
-    ';
-    $this->writeHTML($footer_html, true, false, true, false, '');
+  $this->SetY(-20);
+  $this->SetFont('helvetica', '', 8);
+  
+  $footer_html = '
+  <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr>
+          <!-- Celda izquierda con URL -->
+          <td width="45%" align="center" valign="middle">
+              <a href="http://www.dreaya.gob.pe" style="color:#0000ff; text-decoration:underline; font-size:8pt;">www.dreaya.gob.pe</a>
+          </td>
+          
+          <!-- Celda central con separador vertical -->
+          <td width="10%" align="center">
+              <div style="border-left:1px solid #C5232A; height:15px; margin:0 auto;"></div>
+          </td>
+          
+          <!-- Celda derecha con información de contacto -->
+          <td width="45%" align="left" valign="middle" style="font-size:7pt; line-height:1.3;">
+              <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                  <tr>
+                      <td>Jr. 28 de Julio N° 383 - Huamanga</td>
+                  </tr>
+                  <tr>
+                      <td> (066) 31-2364</td>
+                  </tr>
+                  <tr>
+                      <td> (066) 31-1395 Anexo 55001</td>
+                  </tr>
+              </table>
+          </td>
+      </tr>
+  </table>
+  ';
+  
+  $this->writeHTML($footer_html, true, false, true, false, '');
 }
+
 }
 
 if ($ruta[1] == "imprInstituciones") {
