@@ -238,7 +238,7 @@ if ($ruta[1] == "imprimirInstituciones") {
 
 }
 //imprimir ambientes
-if($ruta[1] == "imprAmbientes"){
+if($ruta[1] == "imprimirAmbientes"){
         $curl = curl_init(); 
         curl_setopt_array($curl, array(
         CURLOPT_URL => BASE_URL_SERVER."src/control/Ambiente.php?tipo=listarTodosAmbientes&sesion=".$_SESSION['sesion_id']."&token=".$_SESSION['sesion_token'],
@@ -389,7 +389,7 @@ if($ruta[1] == "imprAmbientes"){
     }
 }
 //imprimir bienes
-if($ruta[1] == "imprBienes"){
+if($ruta[1] == "imprimirBienes"){
      $curl = curl_init(); 
         curl_setopt_array($curl, array(
         CURLOPT_URL => BASE_URL_SERVER."src/control/Bien.php?tipo=ObtenerTodosBienes&sesion=".$_SESSION['sesion_id']."&token=".$_SESSION['sesion_token'],
@@ -548,7 +548,7 @@ if($ruta[1] == "imprBienes"){
 
 }
 //imprimir movimientos
-if ($ruta[1] == "imprMovimientos") {
+if ($ruta[1] == "imprimirMovimientos") {
       $curl = curl_init(); 
         curl_setopt_array($curl, array(
         CURLOPT_URL => BASE_URL_SERVER."src/control/Movimiento.php?tipo=ListarMovimientos&sesion=".$_SESSION['sesion_id']."&token=".$_SESSION['sesion_token'],
@@ -700,7 +700,7 @@ if ($ruta[1] == "imprMovimientos") {
     }
 }
 
-if ($ruta[1] == "imprUsuarios") {
+if ($ruta[1] == "imprimirUsuarios") {
       $curl = curl_init(); 
         curl_setopt_array($curl, array(
         CURLOPT_URL => BASE_URL_SERVER."src/control/Usuario.php?tipo=listarUsuarios&sesion=".$_SESSION['sesion_id']."&token=".$_SESSION['sesion_token'],
