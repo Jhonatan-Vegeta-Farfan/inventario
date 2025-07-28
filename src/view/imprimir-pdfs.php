@@ -78,7 +78,7 @@ public function Footer() {
 
 }
 
-if ($ruta[1] == "imprInstituciones") {
+if ($ruta[1] == "imprimirInstituciones") {
     $curl = curl_init(); //inicia la sesión cURL
     curl_setopt_array($curl, array(
         CURLOPT_URL => BASE_URL_SERVER."src/control/Institucion.php?tipo=listar&sesion=".$_SESSION['sesion_id']."&token=".$_SESSION['sesion_token'],
