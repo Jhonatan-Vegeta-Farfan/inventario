@@ -42,7 +42,7 @@ if($ruta[1] == "bienes"){
 
        // Crear el Excel
             $spreadsheet = new Spreadsheet();
-            $spreadsheet->getProperties()->setCreator("JHONATAN")->setLastModifiedBy("yo")->setTitle("ReporteBienes")->setDescription("yo");
+            $spreadsheet->getProperties()->setCreator("YO")->setLastModifiedBy("yo")->setTitle("ReporteBienes")->setDescription("yo");
             $activeWorkSheet = $spreadsheet->getActiveSheet();
             $activeWorkSheet->setTitle("Bienes");  
 
