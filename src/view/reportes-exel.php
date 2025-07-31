@@ -138,7 +138,7 @@ if($ruta[1] == "usuarios"){
        $usuarios = $respuesta->usuarios;
 
             $spreadsheet = new Spreadsheet();
-            $spreadsheet->getProperties()->setCreator("JHONATAN")->setLastModifiedBy("yo")->setTitle("ReporteBienes")->setDescription("yo");
+            $spreadsheet->getProperties()->setCreator("YO")->setLastModifiedBy("yo")->setTitle("ReporteBienes")->setDescription("yo");
             $activeWorkSheet = $spreadsheet->getActiveSheet();
             $activeWorkSheet->setTitle("usuarios");  
 
@@ -216,7 +216,7 @@ if($ruta[1] == "instituciones"){
        $instituciones = $respuesta->contenido;
 
             $spreadsheet = new Spreadsheet();
-            $spreadsheet->getProperties()->setCreator("JHONATAN")->setLastModifiedBy("yo")->setTitle("ReporteBienes")->setDescription("yo");
+            $spreadsheet->getProperties()->setCreator("YO")->setLastModifiedBy("yo")->setTitle("ReporteBienes")->setDescription("yo");
             $activeWorkSheet = $spreadsheet->getActiveSheet();
             $activeWorkSheet->setTitle("instituciones");  
 
@@ -291,7 +291,7 @@ if($ruta[1] == "ambientes"){
        $ambientes = $respuesta->contenido;
 
             $spreadsheet = new Spreadsheet();
-            $spreadsheet->getProperties()->setCreator("JHONATAN")->setLastModifiedBy("yo")->setTitle("ReporteBienes")->setDescription("yo");
+            $spreadsheet->getProperties()->setCreator("YO")->setLastModifiedBy("yo")->setTitle("ReporteBienes")->setDescription("yo");
             $activeWorkSheet = $spreadsheet->getActiveSheet();
             $activeWorkSheet->setTitle("ambientes");  
 
@@ -367,7 +367,7 @@ if($ruta[1] == "movimientos"){
        $movimientos = $respuesta->movimientos;
 
             $spreadsheet = new Spreadsheet();
-            $spreadsheet->getProperties()->setCreator("JHONATAN")->setLastModifiedBy("yo")->setTitle("ReporteBienes")->setDescription("yo");
+            $spreadsheet->getProperties()->setCreator("YO")->setLastModifiedBy("yo")->setTitle("ReporteBienes")->setDescription("yo");
             $activeWorkSheet = $spreadsheet->getActiveSheet();
             $activeWorkSheet->setTitle("movimientos");  
 
