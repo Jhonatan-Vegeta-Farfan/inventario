@@ -80,7 +80,8 @@
                                 <a class="dropdown-item d-flex align-items-center justify-content-between" href="javascript:void(0)">
                                     Mi perfil
                                 </a>
-                                <button class="dropdown-item d-flex align-items-center justify-content-between" onclick="sent_email_password();">
+                                <button class="dropdown-item d-flex align-items-center justify-content-between" 
+                                    onclick="send_email_password()">
                                     <span>Cambiar mi Contraseña</span>
                                 </button>
                                 <button class="dropdown-item d-flex align-items-center justify-content-between" onclick="cerrar_sesion();">
