@@ -235,7 +235,7 @@ if($tipo == "ObtenerTodosBienes"){
     if ($objSesion->verificar_sesion_si_activa($id_sesion, $token)) {
 
         
-$arr_bienes = $objBien->listarBienes();
+ $arr_bienes = $objBien->listarBienes();
 
     for ($i=0; $i < count($arr_bienes); $i++) { 
             $ingreso = $objIngreso->buscarIngresoBienbyId($arr_bienes[$i]->id_ingreso_bienes);
