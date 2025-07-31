@@ -165,146 +165,105 @@ function cargar_sede_filtro(sedes) {
     document.getElementById('busqueda_tabla_sede').innerHTML = lista_sede;
 }
 
+
+
 // ------------------------------------------- FIN DE DATOS DE CARGA PARA FILTRO DE BUSQUEDA -----------------------------------------------
 
-async function validar_datos_reset_password(params){
+async function validar_datos_reset_password(){
     let id = document.getElementById('data').value;
     let token = document.getElementById('data2').value;
-    const formData = new FormData();
-    formData.append('id', id);
-    formData.append('token', token);
-    formData.append('sesion', '');
-    try {
-        let respuesta = await fetch(base_url_server + 'src/control/Usuario.php?tipo=validar_datos_reset_password', {
-            method: 'POST',
-            mode: 'cors',
-            cache: 'no-cache',
-            body: formData
-        });
-        let json = await respuesta.json();
 
-        if (json.status == false) {
-            Swal.fire({
-                type: 'error',
-                title: 'Error de Link',
-                text: "El tiempo de Espera a Caducado, Vefique su correo",
-                confirmButtonClass: 'btn btn-confirm mt-2',
-                footer: '',
-                timer: 5000
-            });
-            // Opcional: redirigir al login después de un tiempo
-            setTimeout(() => {
-                location.replace(base_url + "login");
-            }, 1500);
-        }
-    } catch (e) {
-        console.log("Error al validar datos" + e);
-    }
-}
+        const formData = new FormData();
+        formData.append('id',id);
+        formData.append('token',token);
+        formData.append('sesion','');
 
-function validar_imputs_password(){
-    let pass1 = document.getElementById('password').value;
-    let pass2 = document.getElementById('password1').value;
-    if(pass1 !== pass2) {
-        Swal.fire({
-            type: 'error',
-            title: 'Error',
-            text: "Las contraseñas no coinciden",
-            footer: '',
-            timer: 1500
-        });
-        return;
-    }
-    if(pass1.length<8 && pass2.length<8){
-        Swal.fire({
-            type: 'error',
-            title: 'Error',
-            text: "La contraseña tiene que ser minimo 8 caracteres",
-            footer: '',
-            timer: 2000
-        });
-        return;
-    }else{
-        actualizar_password();
-    }
-
-}
-
-//tarea
-async function actualizar_password() {
-    // Obtener los datos necesarios
-    let id = document.getElementById('data').value;
-    let token = document.getElementById('data2').value;
-    let nueva_password = document.getElementById('password').value;
-    
-    // Crear FormData con la información
-    const formData = new FormData();
-    formData.append('id', id);
-    formData.append('token', token);
-    formData.append('password', nueva_password);
-    formData.append('sesion', '');
-    
-    try {
-        // Mostrar loading
-        Swal.fire({
-            title: 'Actualizando...',
-            text: 'Por favor espere',
-            allowOutsideClick: false,
-            showConfirmButton: false,
-            willOpen: () => {
-                Swal.showLoading();
+            try {
+                let respuesta = await fetch(base_url_server+'src/control/Usuario.php?tipo=validar_datos_reset_password', {
+                    method: 'POST',
+                    mode: 'cors',
+                    cache: 'no-cache',
+                    body: formData
+                });
+                let json = await respuesta.json();
+                if (json.status == false) {
+                     //modificacion del formulario cuando link esta caducado
+                      const text_r_P = document.querySelectorAll('.texr-p');
+                      text_r_P.forEach(text => {
+                      text.style.display = 'none'; });
+                      let botonrp = document.getElementById('button_r_pass');
+                      botonrp.innerHTML = '<a href="../login"> Iniciar sesion </a>';
+                      let formulario = document.getElementById('reset_pass_form');
+                      formulario.innerHTML = '<span style="color: white;">Este link ha caducado</span>';
+                }
+                console.log(respuesta);
+            } catch (e) {
+                console.log("Error " + e);
             }
-        });
-        
-        // Enviar datos al controlador
-        let respuesta = await fetch(base_url_server + 'src/control/Usuario.php?tipo=actualizar_password_reset', {
-            method: 'POST',
-            mode: 'cors',
-            cache: 'no-cache',
-            body: formData
-        });
-        
-        let json = await respuesta.json();
-        
-        if (json.status == true) {
-            // Éxito - contraseña actualizada
-            Swal.fire({
-                type: 'success',
-                title: 'Éxito',
-                text: json.msg,
-                confirmButtonClass: 'btn btn-confirm mt-2',
-                footer: '',
-                timer: 5000
-            }).then(() => {
-                // Redirigir al login después del éxito
-                location.replace(base_url + "login");
-            });
-        } else {
-            // Error al actualizar
-            Swal.fire({
+}
+
+function validar_inputs_password(){
+    let pass1 = document.getElementById('Password').value;
+    let pass2 = document.getElementById('Password1').value;
+
+    if (pass1 != pass2) {
+        Swal.fire({
                 type: 'error',
                 title: 'Error',
-                text: json.msg,
-                confirmButtonClass: 'btn btn-confirm mt-2',
+                text: 'Las Contraseñas no coinciden',
                 footer: '',
-                timer: 5000
+                timer: 1500
             });
-        }
-        
-    } catch (error) {
-        console.log("Error al actualizar contraseña: " + error);
-        Swal.fire({
-            type: 'error',
-            title: 'Error',
-            text: 'Error de conexión. Intente nuevamente.',
-            confirmButtonClass: 'btn btn-confirm mt-2',
-            footer: '',
-            timer: 5000
-        });
+            return;
     }
+    if (pass1.length<8 && pass2.length<8) {
+      Swal.fire({
+                type: 'Error',
+                title: 'Ingresa Minimo 8 caracteres',
+                text: 'la contraseña Tiene que ser minimo 8 caracteres',
+                footer: '',
+                timer: 1500
+            });
+            return;
+    } else {
+        actualizar_password(pass1);
+    }
+    
 }
+async function actualizar_password(password) {
+      //enviar informacion de password y id al controlador usuario
+      // recibir infomacion y encriptar la nueva contraseña - controlador
+      // guardar en base de datos y actualizar campo de reset password =0 y token passord = ''
+      //notificacion a usuario sobre sobr el estado del proceso.
+        let id = document.getElementById('data').value;
+        const formData = new FormData();
+        formData.append('id',id);
+        formData.append('password',password);
+        formData.append('sesion','');
+        formData.append('token','');
 
-    //enviar informacion de password y id al controlador usuario
-    //recibir informacion y encriptar la nueva contraseña
-    //guardar en la base de datos y actualizar campo de reset_password = 0 y token_password = ''
-    //notificar a usuario sobre el proceso
+            try {
+                let respuesta = await fetch(base_url_server+'src/control/Usuario.php?tipo=restablecer_password', {
+                    method: 'POST',
+                    mode: 'cors',
+                    cache: 'no-cache',
+                    body: formData
+                });
+                let json = await respuesta.json();
+                if (json.status) {
+                    Swal.fire({
+                        type: 'success', 
+                        title: '¡Éxito!',
+                        text: 'Tu contraseña ha sido actualizada correctamente.',
+                        confirmButtonText: 'Aceptar',
+                        customClass: {confirmButton: 'btn btn-confirm mt-2'},
+                        allowOutsideClick: false 
+                        })
+                        location.reload();
+
+                }
+                //console.log(respuesta);
+            } catch (e) {
+                console.log("Error " + e);
+            }
+}

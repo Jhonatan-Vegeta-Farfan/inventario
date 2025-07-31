@@ -8,14 +8,14 @@ class vistasControlador extends vistaModelo
     {
         return require_once "./src/view/plantilla.php";
     }
-    public function obtenerVistaControlador()
+   public function obtenerVistaControlador()
     {
 
         if (!isset($_SESSION['sesion_id'])) {
             if (isset($_GET['views'])) {
                 $ruta = explode("/", $_GET['views']);
-                if ($ruta[0]=="reset-password") {
-                    $respuesta = "reset-password";
+                if ($ruta[0]=="UpdatePassword") {
+                    $respuesta = "UpdatePassword";
                 }else {
                     $respuesta = "login";
                 }
@@ -32,4 +32,5 @@ class vistasControlador extends vistaModelo
         }
         return $respuesta;
     }
+
 }
