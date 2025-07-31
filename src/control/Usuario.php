@@ -218,7 +218,7 @@ if($tipo == "sent_email_password"){
                             //Create an instance; passing `true` enables exceptions
                         //incluimos la plantilla de correo para el body email
                         ob_start();
-                        include __DIR__ . '../../view/BodyEmail.php';
+                        include __DIR__ . '../../view/reset-password.php';
                         $emailBody = ob_get_clean();
                         
                         //php mailer
@@ -228,15 +228,15 @@ if($tipo == "sent_email_password"){
                             //Server settings
                             $mail->SMTPDebug = 2;                      //Enable verbose debug output
                             $mail->isSMTP();                                            //Send using SMTP
-                            $mail->Host       = 'mail.limon-cito.com';                     //Set the SMTP server to send through
+                            $mail->Host       = 'mail.dpweb2024.com';                     //Set the SMTP server to send through
                             $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
-                            $mail->Username   = 'sisve_jota@limon-cito.com';                     //SMTP username
-                            $mail->Password   = 'jota123@@JOTA';                               //SMTP password
+                            $mail->Username   = 'jhonatannfarfan@dpweb2024.com';                     //SMTP username
+                            $mail->Password   = '0JozS@^-j-%,';                               //SMTP password
                             $mail->SMTPSecure = 'ssl';            //Enable implicit TLS encryption
                             $mail->Port       = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
 
                             //Recipients
-                            $mail->setFrom('sisve_jota@limon-cito.com', 'Support Sisve app');
+                            $mail->setFrom('jhonatannfarfan@dpweb2024.com', 'Support Sisve app');
                             $mail->addAddress($correo_usuario, $nombre_usuario);     //Add a recipient
                             //Name is optional
 
