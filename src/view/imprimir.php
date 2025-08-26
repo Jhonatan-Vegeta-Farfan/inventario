@@ -7,8 +7,8 @@ if (!isset($ruta[1]) || $ruta[1] == "") {
 require_once('./vendor/tecnickcom/tcpdf/tcpdf.php');
 class MYPDF extends TCPDF {
 public function Header() {
-    $image_path_dre = __DIR__ . '/images/gobayacucho.jpg';
-    $image_path_goba = __DIR__ . '/images/dreaya.jpg';
+    $image_path_dre = __DIR__ . '/imagen/gob.jpg';
+    $image_path_goba = __DIR__ . '/imagen/drea.jpg';
     // --- LOGO IZQUIERDO ---
     $this->Image($image_path_dre, 15, 8, 25, 0, 'JPG', '', 'T', false, 300, '', false, false, 0, false, false, false);
     // --- TEXTOS DEL CENTRO ---
@@ -78,7 +78,7 @@ public function Footer() {
 
 }
 
-if ($ruta[1] == "imprInstituciones") {
+if ($ruta[1] == "imprimirInstituciones") {
     $curl = curl_init(); //inicia la sesión cURL
     curl_setopt_array($curl, array(
         CURLOPT_URL => BASE_URL_SERVER."src/control/Institucion.php?tipo=listar&sesion=".$_SESSION['sesion_id']."&token=".$_SESSION['sesion_token'],
@@ -238,7 +238,7 @@ if ($ruta[1] == "imprInstituciones") {
 
 }
 //imprimir ambientes
-if($ruta[1] == "imprAmbientes"){
+if($ruta[1] == "imprimirAmbientes"){
         $curl = curl_init(); 
         curl_setopt_array($curl, array(
         CURLOPT_URL => BASE_URL_SERVER."src/control/Ambiente.php?tipo=listarTodosAmbientes&sesion=".$_SESSION['sesion_id']."&token=".$_SESSION['sesion_token'],
@@ -389,7 +389,7 @@ if($ruta[1] == "imprAmbientes"){
     }
 }
 //imprimir bienes
-if($ruta[1] == "imprBienes"){
+if($ruta[1] == "imprimirBienes"){
      $curl = curl_init(); 
         curl_setopt_array($curl, array(
         CURLOPT_URL => BASE_URL_SERVER."src/control/Bien.php?tipo=ObtenerTodosBienes&sesion=".$_SESSION['sesion_id']."&token=".$_SESSION['sesion_token'],
@@ -548,7 +548,7 @@ if($ruta[1] == "imprBienes"){
 
 }
 //imprimir movimientos
-if ($ruta[1] == "imprMovimientos") {
+if ($ruta[1] == "imprimirMovimientos") {
       $curl = curl_init(); 
         curl_setopt_array($curl, array(
         CURLOPT_URL => BASE_URL_SERVER."src/control/Movimiento.php?tipo=ListarMovimientos&sesion=".$_SESSION['sesion_id']."&token=".$_SESSION['sesion_token'],
@@ -700,7 +700,7 @@ if ($ruta[1] == "imprMovimientos") {
     }
 }
 
-if ($ruta[1] == "imprUsuarios") {
+if ($ruta[1] == "imprimirUsuarios") {
       $curl = curl_init(); 
         curl_setopt_array($curl, array(
         CURLOPT_URL => BASE_URL_SERVER."src/control/Usuario.php?tipo=listarUsuarios&sesion=".$_SESSION['sesion_id']."&token=".$_SESSION['sesion_token'],

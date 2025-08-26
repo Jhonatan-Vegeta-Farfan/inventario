@@ -12,8 +12,8 @@ require_once('./vendor/tecnickcom/tcpdf/tcpdf.php');
 class MYPDF extends TCPDF {
 
 public function Header() {
-    $image_path_dre = __DIR__ . '/images/gobayacucho.jpg';
-    $image_path_goba = __DIR__ . '/images/dreaya.jpg';
+    $image_path_dre = __DIR__ . '/imagen/gob.jpg';
+    $image_path_goba = __DIR__ . '/imagen/drea.jpg';
 
     // --- LOGO IZQUIERDO ---
     $this->Image($image_path_dre, 15, 8, 25, 0, 'JPG', '', 'T', false, 300, '', false, false, 0, false, false, false);
@@ -259,7 +259,7 @@ public function Footer() {
 
         // set document information
         $pdf->SetCreator(PDF_CREATOR);
-        $pdf->SetAuthor('Nicola Asuni');
+        $pdf->SetAuthor('JHONATAN');
         $pdf->SetTitle('REPORTE DE MOVIMIENTOS');
         $pdf->SetSubject('TCPDF Tutorial');
         $pdf->SetKeywords('TCPDF, PDF, example, test, guide');
