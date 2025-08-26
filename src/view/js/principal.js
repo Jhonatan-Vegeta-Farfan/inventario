@@ -166,104 +166,184 @@ function cargar_sede_filtro(sedes) {
 }
 
 
-
 // ------------------------------------------- FIN DE DATOS DE CARGA PARA FILTRO DE BUSQUEDA -----------------------------------------------
 
-async function validar_datos_reset_password(){
+async function validar_datos_reset_password() {
     let id = document.getElementById('data').value;
     let token = document.getElementById('data2').value;
-
-        const formData = new FormData();
-        formData.append('id',id);
-        formData.append('token',token);
-        formData.append('sesion','');
-
-            try {
-                let respuesta = await fetch(base_url_server+'src/control/Usuario.php?tipo=validar_datos_reset_password', {
-                    method: 'POST',
-                    mode: 'cors',
-                    cache: 'no-cache',
-                    body: formData
-                });
-                let json = await respuesta.json();
-                if (json.status == false) {
-                     //modificacion del formulario cuando link esta caducado
-                      const text_r_P = document.querySelectorAll('.texr-p');
-                      text_r_P.forEach(text => {
-                      text.style.display = 'none'; });
-                      let botonrp = document.getElementById('button_r_pass');
-                      botonrp.innerHTML = '<a href="../login"> Iniciar sesion </a>';
-                      let formulario = document.getElementById('reset_pass_form');
-                      formulario.innerHTML = '<span style="color: white;">Este link ha caducado</span>';
-                }
-                console.log(respuesta);
-            } catch (e) {
-                console.log("Error " + e);
-            }
-}
-
-function validar_inputs_password(){
-    let pass1 = document.getElementById('Password').value;
-    let pass2 = document.getElementById('Password1').value;
-
-    if (pass1 != pass2) {
-        Swal.fire({
+    const formData = new FormData();
+    formData.append('id', id);
+    formData.append('token', token);
+    formData.append('sesion', '');
+    try {
+        let respuesta = await fetch(base_url_server + 'src/control/Usuario.php?tipo=validar_datos_reset_password', {
+            method: 'POST',
+            mode: 'cors',
+            cache: 'no-cache',
+            body: formData
+        });
+        let json = await respuesta.json();
+        if (json.status == false) {
+            Swal.fire({
                 type: 'error',
-                title: 'Error',
-                text: 'Las Contraseñas no coinciden',
+                title: 'Error de Link',
+                text: "Link caducado, verifique su correo",
+                confirmButtonClass: 'btn btn-confirm mt-2',
                 footer: '',
-                timer: 1500
+                timer: 5000
             });
-            return;
-    }
-    if (pass1.length<8 && pass2.length<8) {
-      Swal.fire({
-                type: 'Error',
-                title: 'Ingresa Minimo 8 caracteres',
-                text: 'la contraseña Tiene que ser minimo 8 caracteres',
-                footer: '',
-                timer: 1500
-            });
-            return;
-    } else {
-        actualizar_password(pass1);
-    }
-    
-}
-async function actualizar_password(password) {
-      //enviar informacion de password y id al controlador usuario
-      // recibir infomacion y encriptar la nueva contraseña - controlador
-      // guardar en base de datos y actualizar campo de reset password =0 y token passord = ''
-      //notificacion a usuario sobre sobr el estado del proceso.
-        let id = document.getElementById('data').value;
-        const formData = new FormData();
-        formData.append('id',id);
-        formData.append('password',password);
-        formData.append('sesion','');
-        formData.append('token','');
+            let formulario = document.getElementById('frm_reset_password');
+            formulario.innerHTML = `
+  <div class="text-center">
+    <p>El link ha caducado. Puedes generar uno nuevo a tu correo electrónico.</p>
+    <button id="btnGenerarLinkNuevo" type="button" class="btn btn-warning mt-3">Generar nuevo enlace</button>
+  </div>
+`;
 
-            try {
-                let respuesta = await fetch(base_url_server+'src/control/Usuario.php?tipo=restablecer_password', {
-                    method: 'POST',
-                    mode: 'cors',
-                    cache: 'no-cache',
-                    body: formData
+            document.getElementById('btnGenerarLinkNuevo').addEventListener('click', async function () {
+                const boton = this;
+                boton.disabled = true;
+
+                Swal.fire({
+                    title: 'Enviando...',
+                    text: 'Generando nuevo enlace. Por favor espera...',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
                 });
-                let json = await respuesta.json();
-                if (json.status) {
-                    Swal.fire({
-                        type: 'success', 
-                        title: '¡Éxito!',
-                        text: 'Tu contraseña ha sido actualizada correctamente.',
-                        confirmButtonText: 'Aceptar',
-                        customClass: {confirmButton: 'btn btn-confirm mt-2'},
-                        allowOutsideClick: false 
-                        })
-                        location.reload();
 
+                const formDataNuevo = new FormData();
+                formDataNuevo.append('id', id);
+                formDataNuevo.append('sesion', '');
+                formDataNuevo.append('token', '');
+
+                try {
+                    let respuesta = await fetch(base_url_server + 'src/control/Usuario.php?tipo=generar_nuevo_link_password', {
+                        method: 'POST',
+                        mode: 'cors',
+                        cache: 'no-cache',
+                        body: formDataNuevo
+                    });
+
+                    let jsonNuevo = await respuesta.json();
+                    Swal.close(); // cierra el loader
+
+                    if (jsonNuevo.status) {
+                        Swal.fire({
+                            type:'success',
+                            title: 'Correo enviado',
+                            text: 'Se ha enviado un nuevo enlace a tu correo.',
+                            timer: 4000
+                        });
+                    } else {
+                        Swal.fire({
+                            type:'error',
+                            title: 'Error',
+                            text: jsonNuevo.msg,
+                            timer: 4000
+                        });
+                    }
+                } catch (e) {
+                    Swal.close(); // cierra el loader si hubo error
+                    Swal.fire('Error', 'No se pudo enviar el nuevo enlace', 'error');
+                } finally {
+                    boton.disabled = false;
                 }
-                //console.log(respuesta);
-            } catch (e) {
-                console.log("Error " + e);
-            }
+            });
+
+
+        }
+        //console.log(respuesta);
+    } catch (error) {
+        console.log("Error al validar los datos" + error);
+    }
 }
+
+function validar_inputs_password() {
+    let pass1 = document.getElementById('password').value;
+    let pass2 = document.getElementById('password1').value;
+
+
+
+    if (pass1 !== pass2) {
+        Swal.fire({
+            type: 'error',
+            title: 'Error',
+            text: "Las contraseñas no coinciden",
+            footer: '',
+            timer: 3000
+        });
+        return;
+    }
+    if (pass1.length < 8 && pass2.length < 8) {
+        Swal.fire({
+            type: 'error',
+            title: 'Error',
+            text: "La contraseña debe ser de mínimo 8 caracteres",
+            footer: '',
+            timer: 3000
+        });
+        return;
+    } else {
+        actualizar_password();
+    }
+}
+
+async function actualizar_password() {
+    const id = document.getElementById('data').value;
+    const password = document.getElementById('password').value;
+
+    const formData = new FormData();
+    formData.append('id', id);
+    formData.append('password', password);
+    formData.append('sesion', '');
+    formData.append('token', '');
+
+
+    try {
+        const respuesta = await fetch(base_url_server + 'src/control/Usuario.php?tipo=nuevo_password', {
+            method: 'POST',
+            body: formData
+        });
+
+        const json = await respuesta.json();
+
+        if (json.status === true) {
+            Swal.fire({
+                type: 'success',
+                title: '¡Contraseña actualizada!',
+                text: json.mensaje,
+                timer: 3000
+            });
+
+
+            setTimeout(() => {
+                window.location.href = base_url + "login";
+            }, 3000);
+
+
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: json.mensaje,
+                timer: 3000
+            });
+        }
+    } catch (error) {
+        console.error("Error en la petición:", error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error del servidor',
+            text: 'Ocurrió un error al actualizar la contraseña.',
+            timer: 3000
+        });
+    }
+}
+
+//enviar informacion de password y id al controlador del usuario
+//recibir informacion y encriptar la nueva contraseña
+//guardar en base de datos y actualizar campo de reset_password  = 0 y token_password = ''
+//notificar al usuario sobre el estado del proceso (tipo alerta para no saturar el sistema o por correo)
+//ASIGNAR BOTON CON REDIRECCION PARA EL LINK CADUCADO COMO (Clic en este boton para generar otro)

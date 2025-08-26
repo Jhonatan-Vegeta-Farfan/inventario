@@ -31,12 +31,6 @@ class IngresoModel
         $sql = $sql->fetch_object();
         return $sql;
     }
-
-    public function buscarIngresoBienbyId($id){
-        $sql = $this->conexion->query("SELECT * FROM ingreso_bienes WHERE id='$id'");
-        $sql = $sql->fetch_object();
-        return $sql;
-    }
     public function buscarIngreso_filtro($filtro, $ambiente)
     {
         $arrRespuesta = array();

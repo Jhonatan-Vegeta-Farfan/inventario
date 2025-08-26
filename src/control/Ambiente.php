@@ -165,28 +165,18 @@ if ($tipo == "datos_registro") {
     echo json_encode($arr_Respuesta);
 }
 
-if($tipo == "listarTodosAmbientes"){
-      $arr_Respuesta = array('status' => false, 'msg' => 'Error_Sesion');
-    if ($objSesion->verificar_sesion_si_activa($id_sesion, $token)) {  
-        $arr_Respuesta = array('status' => false, 'contenido' => '');
-        $resAmbiente = $objAmbiente->listarAmbientes();
-        $arr_contenido = [];
-        if (!empty($resAmbiente)) {
-            
-            for ($i = 0; $i < count($resAmbiente); $i++) {
-                $institucion = $objInstitucion->buscarInstitucionById($resAmbiente[$i]->id_ies);
-                $arr_contenido[$i] = (object) [];
-                $arr_contenido[$i]->institucion = $institucion->nombre;
-                $arr_contenido[$i]->id = $resAmbiente[$i]->id;
-                $arr_contenido[$i]->encargado = $resAmbiente[$i]->encargado;
-                $arr_contenido[$i]->codigo = $resAmbiente[$i]->codigo;
-                $arr_contenido[$i]->detalle = $resAmbiente[$i]->detalle;
-                $arr_contenido[$i]->otros_detalle = $resAmbiente[$i]->otros_detalle;
 
-            }
-            $arr_Respuesta['status'] = true;
-            $arr_Respuesta['contenido'] = $arr_contenido;
-        }
+if ($tipo == "buscar_ambientes") {
+    $arr_Respuesta = array('status' => false, 'msg' => 'Error_sesion');
+
+    if ($objSesion->verificar_sesion_si_activa($id_sesion, $token)) {
+
+        $ambientes = $objAmbiente->obtenerTodosLosAmbientes();
+
+        $arr_Respuesta['status'] = true;
+        $arr_Respuesta['msg'] = 'correcto';
+        $arr_Respuesta['ambientes'] = $ambientes;
     }
+
     echo json_encode($arr_Respuesta);
 }

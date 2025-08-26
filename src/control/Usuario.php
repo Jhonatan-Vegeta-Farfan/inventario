@@ -1,277 +1,602 @@
 <?php
+session_start();
+require_once('../model/admin-sesionModel.php');
+require_once('../model/admin-usuarioModel.php');
+require_once('../model/adminModel.php');
+
+require '../../vendor/autoload.php';
+
+$tipo = $_GET['tipo'];
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
-session_start();
-require_once('../model/admin-sesionModel.php');
-require_once('../model/admin-usuarioModel.php');
-require_once('../model/adminModel.php');
-require  '../../vendor/autoload.php' ;
-
-$tipo = $_GET['tipo'];
-
-//instanciar la clase categoria model
 $objSesion = new SessionModel();
 $objUsuario = new UsuarioModel();
 $objAdmin = new AdminModel();
 
-//variables de sesion
 $id_sesion = $_REQUEST['sesion'];
 $token = $_REQUEST['token'];
 
-//falta
-if($tipo == "restablecer_password"){
+if ($tipo == "validar_datos_reset_password") {
+  $id_email = $_POST['id'];
+  $token_email = $_POST['token'];
 
-        $arr_Respuesta = array('status' => false, 'msg' => 'Error al restablecer');
-
-        if ($_POST) {
-            $id = $_POST['id'];
-            $NewPassword = $_POST['password'];
-            $hashedPassword = password_hash($NewPassword, PASSWORD_DEFAULT);
-
-            if ($id == "" || $NewPassword == "") {
-                $arr_Respuesta = array('status' => false, 'mensaje' => 'Error, campos vacíos');
-            } else {
-                //validar si existe el usuario con ese id
-                $arr_Usuario = $objUsuario->buscarUsuarioById($id);
-                if ($arr_Usuario){
-                    $operacion = $objUsuario->actualizarPassword($id, $hashedPassword);
-                    if ($operacion) {
-                        $tokenVacio = "";
-                        $nuevoEstado = 0;
-                        $operacion2 = $objUsuario->UpdateResetPassword($id, $tokenVacio, $nuevoEstado);
-                        if (!$operacion2) {
-                           $arr_Respuesta = array('status' => false, 'mensaje' => 'Error al limpiar token');
-                        }
-                        $arr_Respuesta = array('status' => true, 'mensaje' => 'Actualizado correctamente');
-                    } else {
-                        $arr_Respuesta = array('status' => false, 'mensaje' => 'Fallo al actualizar');
-                    }
-                    
-                } else {
-                   $arr_Respuesta = array('status' => false, 'mensaje' => 'Error, usuario no existe');
-                }
-            }
-        }
-         echo json_encode($arr_Respuesta);
+  $arr_Respuesta = array('status' => false, 'mensaje' => 'Link caducado');
+  $datos_usuario = $objUsuario->buscarUsuarioById($id_email);
+  if ($datos_usuario->reset_password == 1 && password_verify($datos_usuario->token_password, $token_email)) {
+    $arr_Respuesta = array('status' => true, 'mensaje' => 'Ok');
+  }
+  echo json_encode($arr_Respuesta);
 }
 
-if($tipo == "validar_datos_reset_password"){
-   $id_email = $_POST['id'];
-   $token_email = $_POST['token'];
-
-   $arr_Respuesta = array('status'=> false, 'msg'=>'link caducado');
-   $datos_usuario = $objUsuario->buscarUsuarioById($id_email);
-   if($datos_usuario->reset_password == 1 && password_verify($datos_usuario->token_password, $token_email)){
-     $arr_Respuesta = array('status'=> true, 'msg'=>'ok');
-   }
-   echo json_encode($arr_Respuesta);
-}
 if ($tipo == "listar_usuarios_ordenados_tabla") {
-    $arr_Respuesta = array('status' => false, 'msg' => 'Error_Sesion');
-    if ($objSesion->verificar_sesion_si_activa($id_sesion, $token)) {
-        //print_r($_POST);
-        $pagina = $_POST['pagina'];
-        $cantidad_mostrar = $_POST['cantidad_mostrar'];
-        $busqueda_tabla_dni = $_POST['busqueda_tabla_dni'];
-        $busqueda_tabla_nomap = $_POST['busqueda_tabla_nomap'];
-        $busqueda_tabla_estado = $_POST['busqueda_tabla_estado'];
-        //repuesta
-        $arr_Respuesta = array('status' => false, 'contenido' => '');
-        $busqueda_filtro = $objUsuario->buscarUsuariosOrderByApellidosNombres_tabla_filtro($busqueda_tabla_dni, $busqueda_tabla_nomap, $busqueda_tabla_estado);
-        $arr_Usuario = $objUsuario->buscarUsuariosOrderByApellidosNombres_tabla($pagina, $cantidad_mostrar, $busqueda_tabla_dni, $busqueda_tabla_nomap, $busqueda_tabla_estado);
-        $arr_contenido = [];
-        if (!empty($arr_Usuario)) {
-            // recorremos el array para agregar las opciones de las categorias
-            for ($i = 0; $i < count($arr_Usuario); $i++) {
-                // definimos el elemento como objeto
-                $arr_contenido[$i] = (object) [];
-                // agregamos solo la informacion que se desea enviar a la vista
-                $arr_contenido[$i]->id = $arr_Usuario[$i]->id;
-                $arr_contenido[$i]->dni = $arr_Usuario[$i]->dni;
-                $arr_contenido[$i]->nombres_apellidos = $arr_Usuario[$i]->nombres_apellidos;
-                $arr_contenido[$i]->correo = $arr_Usuario[$i]->correo;
-                $arr_contenido[$i]->telefono = $arr_Usuario[$i]->telefono;
-                $arr_contenido[$i]->estado = $arr_Usuario[$i]->estado;
-                $opciones = '<button type="button" title="Editar" class="btn btn-primary waves-effect waves-light" data-toggle="modal" data-target=".modal_editar' . $arr_Usuario[$i]->id . '"><i class="fa fa-edit"></i></button>
-                                <button class="btn btn-info" title="Resetear Contraseña" onclick="reset_password(' . $arr_Usuario[$i]->id . ')"><i class="fa fa-key"></i></button>';
-                $arr_contenido[$i]->options = $opciones;
-            }
-            $arr_Respuesta['total'] = count($busqueda_filtro);
-            $arr_Respuesta['status'] = true;
-            $arr_Respuesta['contenido'] = $arr_contenido;
-        }
-    }
-    echo json_encode($arr_Respuesta);
-}
-if ($tipo == "registrar") {
-    $arr_Respuesta = array('status' => false, 'msg' => 'Error_Sesion');
-    if ($objSesion->verificar_sesion_si_activa($id_sesion, $token)) {
-        //print_r($_POST);
-        //repuesta
-        if ($_POST) {
-            $dni = $_POST['dni'];
-            $apellidos_nombres = $_POST['apellidos_nombres'];
-            $correo = $_POST['correo'];
-            $telefono = $_POST['telefono'];
-            $contraseniahash = password_hash($dni, PASSWORD_DEFAULT);
+  $arr_Respuesta = array('status' => false, 'msg' => 'Error_Sesion');
+  if ($objSesion->verificar_sesion_si_activa($id_sesion, $token)) {
+    $pagina = $_POST['pagina'];
+    $cantidad_mostrar = $_POST['cantidad_mostrar'];
+    $busqueda_tabla_dni = $_POST['busqueda_tabla_dni'];
+    $busqueda_tabla_nomap = $_POST['busqueda_tabla_nomap'];
+    $busqueda_tabla_estado = $_POST['busqueda_tabla_estado'];
 
-            if ($dni == "" || $apellidos_nombres == "" || $correo == "" || $telefono == "") {
-                //repuesta
-                $arr_Respuesta = array('status' => false, 'mensaje' => 'Error, campos vacíos');
-            } else {
-                $arr_Usuario = $objUsuario->buscarUsuarioByDni($dni);
-                if ($arr_Usuario) {
-                    $arr_Respuesta = array('status' => false, 'mensaje' => 'Registro Fallido, Usuario ya se encuentra registrado');
-                } else {
-                    $id_usuario = $objUsuario->registrarUsuario($dni, $apellidos_nombres, $correo, $telefono,$contraseniahash);
-                    if ($id_usuario > 0) {
-                        // array con los id de los sistemas al que tendra el acceso con su rol registrado
-                        // caso de administrador y director
-                        $arr_Respuesta = array('status' => true, 'mensaje' => 'Registro Exitoso');
-                    } else {
-                        $arr_Respuesta = array('status' => false, 'mensaje' => 'Error al registrar producto');
-                    }
-                }
-            }
-        }
+    $arr_Respuesta = array('status' => false, 'contenido' => '');
+    $busqueda_filtro = $objUsuario->buscarUsuariosOrderByApellidosNombres_tabla_filtro($busqueda_tabla_dni, $busqueda_tabla_nomap, $busqueda_tabla_estado);
+    $arr_Usuario = $objUsuario->buscarUsuariosOrderByApellidosNombres_tabla($pagina, $cantidad_mostrar, $busqueda_tabla_dni, $busqueda_tabla_nomap, $busqueda_tabla_estado);
+
+    $arr_contenido = [];
+    if (!empty($arr_Usuario)) {
+      for ($i = 0; $i < count($arr_Usuario); $i++) {
+        $arr_contenido[$i] = (object)[
+          'id' => $arr_Usuario[$i]->id,
+          'dni' => $arr_Usuario[$i]->dni,
+          'nombres_apellidos' => $arr_Usuario[$i]->nombres_apellidos,
+          'correo' => $arr_Usuario[$i]->correo,
+          'telefono' => $arr_Usuario[$i]->telefono,
+          'estado' => $arr_Usuario[$i]->estado,
+          'options' => '<button type="button" title="Editar" class="btn btn-primary waves-effect waves-light" data-toggle="modal" data-target=".modal_editar' . $arr_Usuario[$i]->id . '"><i class="fa fa-edit"></i></button>
+                                  <button class="btn btn-info" title="Resetear Contraseña" onclick="reset_password(' . $arr_Usuario[$i]->id . ')"><i class="fa fa-key"></i></button>'
+        ];
+      }
+      $arr_Respuesta['total'] = count($busqueda_filtro);
+      $arr_Respuesta['status'] = true;
+      $arr_Respuesta['contenido'] = $arr_contenido;
     }
-    echo json_encode($arr_Respuesta);
+  }
+  echo json_encode($arr_Respuesta);
+}
+
+if ($tipo == "registrar") {
+  $arr_Respuesta = array('status' => false, 'msg' => 'Error_Sesion');
+  if ($objSesion->verificar_sesion_si_activa($id_sesion, $token)) {
+    if ($_POST) {
+      $dni = $_POST['dni'];
+      $apellidos_nombres = $_POST['apellidos_nombres'];
+      $correo = $_POST['correo'];
+      $telefono = $_POST['telefono'];
+
+      if ($dni == "" || $apellidos_nombres == "" || $correo == "" || $telefono == "") {
+        $arr_Respuesta = array('status' => false, 'mensaje' => 'Error, campos vacíos');
+      } else {
+        $arr_Usuario = $objUsuario->buscarUsuarioByDni($dni);
+        if ($arr_Usuario) {
+          $arr_Respuesta = array('status' => false, 'mensaje' => 'Registro Fallido, Usuario ya se encuentra registrado');
+        } else {
+
+          $password = $_POST['password'];
+
+          $pass_secure = password_hash($password, PASSWORD_DEFAULT);
+
+
+          //  REGISTRAR USUARIO
+          $id_usuario = $objUsuario->registrarUsuario($dni, $apellidos_nombres, $correo, $telefono, $pass_secure);
+
+          if ($id_usuario > 0) {
+            $arr_Respuesta = array('status' => true, 'mensaje' => 'Registro Exitoso.');
+          } else {
+            $arr_Respuesta = array('status' => false, 'mensaje' => 'Error al registrar usuario');
+          }
+        }
+      }
+    }
+  }
+  echo json_encode($arr_Respuesta);
 }
 
 if ($tipo == "actualizar") {
-    $arr_Respuesta = array('status' => false, 'msg' => 'Error_Sesion');
-    if ($objSesion->verificar_sesion_si_activa($id_sesion, $token)) {
-        //print_r($_POST);
-        //repuesta
-        if ($_POST) {
-            $id = $_POST['data'];
-            $dni = $_POST['dni'];
-            $nombres_apellidos = $_POST['nombres_apellidos'];
-            $correo = $_POST['correo'];
-            $telefono = $_POST['telefono'];
-            $estado = $_POST['estado'];
+  $arr_Respuesta = array('status' => false, 'msg' => 'Error_Sesion');
+  if ($objSesion->verificar_sesion_si_activa($id_sesion, $token)) {
+    if ($_POST) {
+      $id = $_POST['data'];
+      $dni = $_POST['dni'];
+      $nombres_apellidos = $_POST['nombres_apellidos'];
+      $correo = $_POST['correo'];
+      $telefono = $_POST['telefono'];
+      $estado = $_POST['estado'];
 
-            if ($id == "" || $dni == "" || $nombres_apellidos == "" || $correo == "" || $telefono == "" || $estado == "") {
-                //repuesta
-                $arr_Respuesta = array('status' => false, 'mensaje' => 'Error, campos vacíos');
-            } else {
-                $arr_Usuario = $objUsuario->buscarUsuarioByDni($dni);
-                if ($arr_Usuario) {
-                    if ($arr_Usuario->id == $id) {
-                        $consulta = $objUsuario->actualizarUsuario($id, $dni, $nombres_apellidos, $correo, $telefono, $estado);
-                        if ($consulta) {
-                            $arr_Respuesta = array('status' => true, 'mensaje' => 'Actualizado Correctamente');
-                        } else {
-                            $arr_Respuesta = array('status' => false, 'mensaje' => 'Error al actualizar registro');
-                        }
-                    } else {
-                        $arr_Respuesta = array('status' => false, 'mensaje' => 'dni ya esta registrado');
-                    }
-                } else {
-                    $consulta = $objUsuario->actualizarUsuario($id, $dni, $nombres_apellidos, $correo, $telefono, $estado);
-                    if ($consulta) {
-                        $arr_Respuesta = array('status' => true, 'mensaje' => 'Actualizado Correctamente');
-                    } else {
-                        $arr_Respuesta = array('status' => false, 'mensaje' => 'Error al actualizar registro');
-                    }
-                }
-            }
-        }
-    }
-    echo json_encode($arr_Respuesta);
-}
-if ($tipo == "reiniciar_password") {
-    $arr_Respuesta = array('status' => false, 'msg' => 'Error_Sesion');
-    if ($objSesion->verificar_sesion_si_activa($id_sesion, $token)) {
-        //print_r($_POST);
-        $id_usuario = $_POST['id'];
-        $password = $objAdmin->generar_llave(10);
-        $pass_secure = password_hash($password, PASSWORD_DEFAULT);
-        $actualizar = $objUsuario->actualizarPassword($id_usuario, $pass_secure);
-        if ($actualizar) {
-            $arr_Respuesta = array('status' => true, 'mensaje' => 'Contraseña actualizado correctamente a: ' . $password);
+      if ($id == "" || $dni == "" || $nombres_apellidos == "" || $correo == "" || $telefono == "" || $estado == "") {
+        $arr_Respuesta = array('status' => false, 'mensaje' => 'Error, campos vacíos');
+      } else {
+        $arr_Usuario = $objUsuario->buscarUsuarioByDni($dni);
+        if ($arr_Usuario && $arr_Usuario->id != $id) {
+          $arr_Respuesta = array('status' => false, 'mensaje' => 'DNI ya está registrado');
         } else {
-            $arr_Respuesta = array('status' => false, 'mensaje' => 'Hubo un problema al actualizar la contraseña, intente nuevamente');
+          $consulta = $objUsuario->actualizarUsuario($id, $dni, $nombres_apellidos, $correo, $telefono, $estado);
+          if ($consulta) {
+            $arr_Respuesta = array('status' => true, 'mensaje' => 'Actualizado Correctamente');
+          } else {
+            $arr_Respuesta = array('status' => false, 'mensaje' => 'Error al actualizar registro');
+          }
         }
+      }
     }
-    echo json_encode($arr_Respuesta);
+  }
+  echo json_encode($arr_Respuesta);
 }
 
-if($tipo == "sent_email_password"){
-     $arr_Respuesta = array('status' => false, 'msg' => 'Error_Sesion');
-    if ($objSesion->verificar_sesion_si_activa($id_sesion, $token)) {
-            $datos_secion = $objSesion->buscarSesionLoginById($id_sesion);
-
-              //obtenemos los datos del usuario mediante el id de la sesion
-               $id_usuario = $datos_secion->id_usuario;
-               $datos_usuario = $objUsuario->buscarUsuarioById($id_usuario);
-               $correo_usuario = $datos_usuario->correo;
-               $nombre_usuario = $datos_usuario->nombres_apellidos;
-                
-                $llave = $objAdmin->generar_llave(30);
-                $token = password_hash($llave, PASSWORD_DEFAULT);
-                $update = $objUsuario->UpdateResetPassword($id_usuario,$llave,1);
-                if ($update) {
-                            //Create an instance; passing `true` enables exceptions
-                        //incluimos la plantilla de correo para el body email
-                        ob_start();
-                        include __DIR__ . '../../view/reset-password.php';
-                        $emailBody = ob_get_clean();
-                        
-                        //php mailer
-                        $mail = new PHPMailer(true);
-
-                        try {
-                            //Server settings
-                            $mail->SMTPDebug = 2;                      //Enable verbose debug output
-                            $mail->isSMTP();                                            //Send using SMTP
-                            $mail->Host       = 'mail.dpweb2024.com';                     //Set the SMTP server to send through
-                            $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
-                            $mail->Username   = 'jhonatannfarfan@dpweb2024.com';                     //SMTP username
-                            $mail->Password   = '0JozS@^-j-%,';                               //SMTP password
-                            $mail->SMTPSecure = 'ssl';            //Enable implicit TLS encryption
-                            $mail->Port       = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
-
-                            //Recipients
-                            $mail->setFrom('jhonatannfarfan@dpweb2024.com', 'Support Sisve app');
-                            $mail->addAddress($correo_usuario, $nombre_usuario);     //Add a recipient
-                            //Name is optional
-
-
-
-                            //Content
-                            $mail->isHTML(true);                                  //Set email format to HTML
-                            $mail->Subject = 'password reset request';
-
-        /*                   $file = fopen("../view/BodyEmail.php","r");
-                            $str = fread($file, filesize("../view/BodyEmail.php"));
-                            $str = trim($str);
-                            fclose($file); */
-
-                            $mail->Body    = $emailBody;
-                            $mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
-
-                            $mail->send();
-                            echo 'Correo enviado con éxito.';
-                        } catch (Exception $e) {
-                            echo "Error al enviar: {$mail->ErrorInfo}";
-                        }
-                }else{
-                    echo "fallo";
-                }
+if ($tipo == "reiniciar_password") {
+  $arr_Respuesta = array('status' => false, 'msg' => 'Error_Sesion');
+  if ($objSesion->verificar_sesion_si_activa($id_sesion, $token)) {
+    $id_usuario = $_POST['id'];
+    $password = $objAdmin->generar_llave(10);
+    $pass_secure = password_hash($password, PASSWORD_DEFAULT);
+    $actualizar = $objUsuario->actualizarPassword($id_usuario, $pass_secure);
+    if ($actualizar) {
+      $arr_Respuesta = array('status' => true, 'mensaje' => 'Contraseña actualizada correctamente a: ' . $password);
+    } else {
+      $arr_Respuesta = array('status' => false, 'mensaje' => 'Hubo un problema al actualizar la contraseña, intente nuevamente');
     }
+  }
+  echo json_encode($arr_Respuesta);
 }
-if($tipo == "listarUsuarios"){
-    $arr_Respuesta = array('status' => false, 'msg' => 'Error_Sesion');
-    if ($objSesion->verificar_sesion_si_activa($id_sesion, $token)) {
-   $arr_usuarios = $objUsuario->listarUsuarios();
 
-   $arr_Respuesta['usuarios'] = $arr_usuarios;
-   $arr_Respuesta['status'] = true;
-   $arr_Respuesta['msg'] = 'correcto';
+if ($tipo == "send_email_password") {
+  $arr_Respuesta = array('status' => false, 'msg' => 'Error_Sesion');
+  if ($objSesion->verificar_sesion_si_activa($id_sesion, $token)) {
+    $datos_sesion = $objSesion->buscarSesionLoginById($id_sesion);
+    $datos_usuario = $objUsuario->buscarUsuarioById($datos_sesion->id_usuario);
+    $llave = $objAdmin->generar_llave(30);
+    $token = password_hash($llave, PASSWORD_DEFAULT);
+    $update = $objUsuario->updateResetPassword($datos_sesion->id_usuario, $llave, 1);
+    if ($update) {
+
+      $mail = new PHPMailer(true);
+
+     try {
+        //Server settings
+        $mail->SMTPDebug = SMTP::DEBUG_SERVER;                      //Enable verbose debug output
+        $mail->isSMTP();                                            //Send using SMTP
+        $mail->Host       = 'mail.dpweb2024.com';                     //Set the SMTP server to send through
+        $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
+        $mail->Username   = 'jhonatannfarfan@dpweb2024.com';                      //SMTP username
+        $mail->Password   = '0JozS@^-j-%,';                            //SMTP password
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
+        $mail->Port       = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
+
+        //Recipients
+        $mail->setFrom('renzo_2002@serviciosvirtuales.com.pe', 'Cambio de contraseña - TB');
+        $mail->addAddress($datos_usuario->correo, $datos_usuario->nombres_apellidos);     //Add a recipient
+        /*$mail->addAddress('ellen@example.com');               //Name is optional
+    $mail->addReplyTo('info@example.com', 'Information');
+    $mail->addCC('cc@example.com');
+    $mail->addBCC('bcc@example.com');
+
+    //Attachments
+    $mail->addAttachment('/var/tmp/file.tar.gz');         //Add attachments
+    $mail->addAttachment('/tmp/image.jpg', 'new.jpg');    //Optional name
+
+    */
+        //Content
+        $mail->isHTML(true);
+        $mail->CharSet = 'UTF-8';                           //Set email format to HTML
+        $mail->Subject = 'Cambio de contraseña - IESTP Huanta';
+        $mail->Body    = '
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Correo Empresarial</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #8DE0F2;
     }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background-color: #ffffff;
+      font-family: Arial, sans-serif;
+      color: #333333;
+      border: 1px solid #dddddd;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .header {
+      background-color: #03588C;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    .header h2 {
+      margin: 0 0 8px 0;
+      font-size: 18px;
+    }
+    .header-subtitle {
+      margin: 0;
+      font-size: 13px;
+      opacity: 0.9;
+    }
+    .color-bar {
+      height: 5px;
+      background: linear-gradient(90deg, #9FD923 0%, #F2E205 50%, #8DE0F2 100%);
+    }
+    .content {
+      padding: 30px;
+    }
+    .content h1 {
+      font-size: 22px;
+      margin-bottom: 20px;
+      color: #03588C;
+    }
+    .content p {
+      font-size: 16px;
+      line-height: 1.5;
+    }
+    .alert-box {
+      background-color: #F2E205;
+      border: 2px solid #9FD923;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .alert-box p {
+      margin: 0;
+      font-size: 14px;
+      font-weight: bold;
+      color: #333;
+    }
+    .button {
+      display: inline-block;
+      background-color: #03588C;
+      color: #ffffff !important;
+      padding: 15px 30px;
+      margin: 20px 0;
+      text-decoration: none;
+      border-radius: 30px;
+      font-weight: bold;
+      font-size: 16px;
+      box-shadow: 0 4px 8px rgba(3, 88, 140, 0.3);
+      transition: all 0.3s;
+    }
+    .button:hover {
+      background-color: #9FD923;
+      color: #333333 !important;
+      transform: translateY(-3px);
+      box-shadow: 0 6px 12px rgba(159, 217, 35, 0.4);
+    }
+    .highlight {
+      color: #03588C;
+      font-weight: bold;
+    }
+    .footer {
+      background-color: #03588C;
+      text-align: center;
+      padding: 15px;
+      font-size: 12px;
+      color: #ffffff;
+    }
+    .footer a {
+      color: #8DE0F2;
+      text-decoration: none;
+    }
+    .footer a:hover {
+      color: #9FD923;
+    }
+    @media screen and (max-width: 600px) {
+      .content, .header, .footer {
+        padding: 15px !important;
+      }
+      .button {
+        padding: 10px 20px !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2>Instituto de Educación Superior Tecnológico Público Huanta</h2>
+      <p class="header-subtitle">Excelencia Educativa - Innovación Tecnológica</p>
+    </div>
+    <div class="color-bar"></div>
+    <div class="content">
+    <center><img src="https://sispa.iestphuanta.edu.pe/img/logo.png"  width="200"></center>
+      <h1>Hola ' . $datos_usuario->nombres_apellidos . ',</h1>
+      <p>
+        Te saludamos cordialmente desde el Instituto de Educación Superior Tecnológico Público Huanta. Hemos recibido una solicitud para cambiar la contraseña de tu cuenta en nuestro sistema académico.
+      </p>
+      <div class="alert-box">
+        <p>Por tu seguridad, este enlace expirará en 24 horas</p>
+      </div>
+      <p>
+        Si solicitaste este cambio, haz clic en el botón de abajo para crear tu nueva contraseña. Si no realizaste esta solicitud, puedes ignorar este correo de forma segura.
+      </p>
+      <center>
+        <a href="' . BASE_URL . 'reset-password/?data=' . $datos_usuario->id . '&data2=' . urlencode($token) . '" class="button">Cambiar Contraseña</a>
+      </center>
+      <p class="highlight">Gracias por confiar en nosotros para tu formación profesional.</p>
+    </div>
+    <div class="footer">
+      © 2025 Instituto de Educación Superior Tecnológico Público Huanta. Todos los derechos reservados.<br>
+      Ayacucho, Perú | <a href="mailto:soporte@iestphuanta.edu.pe">soporte@iestphuanta.edu.pe</a><br>
+      <a href="' . BASE_URL . '">Cancelar suscripción</a>
+    </div>
+  </div>
+</body>
+</html>
+    ';
+
+        $mail->send();
+        echo 'Message has been sent';
+      } catch (Exception $e) {
+        echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+      }
+    } else {
+      echo 'falló al actualizar';
+    }
+    //print_r($token);
+  }
+}
+
+if ($tipo == "nuevo_password") {
+  $arr_Respuesta = array('status' => false, 'msg' => 'Error al procesar la solicitud');
+
+  if ($_POST) {
+    $id_usuario = $_POST['id'] ?? '';
+    $nueva_password = $_POST['password'] ?? '';
+
+    if ($id_usuario == "" || $nueva_password == "") {
+      $arr_Respuesta = array('status' => false, 'mensaje' => 'Error, datos incompletos');
+    } else {
+      // Encriptar contraseña
+      $pass_secure = password_hash($nueva_password, PASSWORD_DEFAULT);
+
+      // Actualizar en base de datos: password, reset_password = 0 y token_password = ''
+      $actualizado = $objUsuario->nuevoPassword($id_usuario, $pass_secure);
+
+      if ($actualizado) {
+        $arr_Respuesta = array('status' => true, 'mensaje' => 'Contraseña actualizada exitosamente.');
+      } else {
+        $arr_Respuesta = array('status' => false, 'mensaje' => 'Error al actualizar la contraseña.');
+      }
+    }
+  }
+
+  echo json_encode($arr_Respuesta);
+}
+
+
+
+if ($tipo == "generar_nuevo_link_password") {
+  $id = $_POST['id'];
+  $arr_Respuesta = ['status' => false, 'msg' => 'No se pudo generar enlace'];
+
+  $datos_usuario = $objUsuario->buscarUsuarioById($id);
+  if ($datos_usuario) {
+    $llave = $objAdmin->generar_llave(30);
+    $token_hash = password_hash($llave, PASSWORD_DEFAULT);
+    $update = $objUsuario->updateResetPassword($id, $llave, 1);
+
+    if ($update) {
+      // Enviar correo (reutiliza tu código de PHPMailer)
+      // (Puedes copiar-pegar tu bloque de $mail y solo cambia el mensaje)
+      $mail = new PHPMailer(true);
+
+      try {
+        //Server settings
+        $mail->SMTPDebug = SMTP::DEBUG_SERVER;                      //Enable verbose debug output
+        $mail->isSMTP();                                            //Send using SMTP
+        $mail->Host       = 'mail.dpweb2024.com';                     //Set the SMTP server to send through
+        $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
+        $mail->Username   = 'jhonatannfarfan@dpweb2024.com';                      //SMTP username
+        $mail->Password   = '0JozS@^-j-%,';                            //SMTP password
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
+        $mail->Port       = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
+
+        //Recipients
+        $mail->setFrom('jhonatannfarfan@dpweb2024.com', 'Cambio de contraseña - TB');
+        $mail->addAddress($datos_usuario->correo, $datos_usuario->nombres_apellidos);     //Add a recipient
+        /*$mail->addAddress('ellen@example.com');               //Name is optional
+    $mail->addReplyTo('info@example.com', 'Information');
+    $mail->addCC('cc@example.com');
+    $mail->addBCC('bcc@example.com');
+
+    //Attachments
+    $mail->addAttachment('/var/tmp/file.tar.gz');         //Add attachments
+    $mail->addAttachment('/tmp/image.jpg', 'new.jpg');    //Optional name
+
+    */
+        //Content
+        $mail->isHTML(true);
+        $mail->CharSet = 'UTF-8';                           //Set email format to HTML
+        $mail->Subject = 'Nuevo enlace para cambio de contraseña - IESTP Huanta';
+        $mail->Body    = '
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Correo Empresarial</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #8DE0F2;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background-color: #ffffff;
+      font-family: Arial, sans-serif;
+      color: #333333;
+      border: 1px solid #dddddd;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .header {
+      background-color: #03588C;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    .header h2 {
+      margin: 0 0 8px 0;
+      font-size: 18px;
+    }
+    .header-subtitle {
+      margin: 0;
+      font-size: 13px;
+      opacity: 0.9;
+    }
+    .color-bar {
+      height: 5px;
+      background: linear-gradient(90deg, #9FD923 0%, #F2E205 50%, #8DE0F2 100%);
+    }
+    .content {
+      padding: 30px;
+    }
+    .content h1 {
+      font-size: 22px;
+      margin-bottom: 20px;
+      color: #03588C;
+    }
+    .content p {
+      font-size: 16px;
+      line-height: 1.5;
+    }
+    .alert-box {
+      background-color: #F2E205;
+      border: 2px solid #9FD923;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .alert-box p {
+      margin: 0;
+      font-size: 14px;
+      font-weight: bold;
+      color: #333;
+    }
+    .button {
+      display: inline-block;
+      background-color: #03588C;
+      color: #ffffff !important;
+      padding: 15px 30px;
+      margin: 20px 0;
+      text-decoration: none;
+      border-radius: 30px;
+      font-weight: bold;
+      font-size: 16px;
+      box-shadow: 0 4px 8px rgba(3, 88, 140, 0.3);
+      transition: all 0.3s;
+    }
+    .button:hover {
+      background-color: #9FD923;
+      color: #333333 !important;
+      transform: translateY(-3px);
+      box-shadow: 0 6px 12px rgba(159, 217, 35, 0.4);
+    }
+    .highlight {
+      color: #03588C;
+      font-weight: bold;
+    }
+    .footer {
+      background-color: #03588C;
+      text-align: center;
+      padding: 15px;
+      font-size: 12px;
+      color: #ffffff;
+    }
+    .footer a {
+      color: #8DE0F2;
+      text-decoration: none;
+    }
+    .footer a:hover {
+      color: #9FD923;
+    }
+    @media screen and (max-width: 600px) {
+      .content, .header, .footer {
+        padding: 15px !important;
+      }
+      .button {
+        padding: 10px 20px !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2>Instituto de Educación Superior Tecnológico Público Huanta</h2>
+      <p class="header-subtitle">Excelencia Educativa - Innovación Tecnológica</p>
+    </div>
+    <div class="color-bar"></div>
+    <div class="content">
+    <center><img src="https://sispa.iestphuanta.edu.pe/img/logo.png"  width="200"></center>
+      <h1>Hola ' . $datos_usuario->nombres_apellidos . ',</h1>
+      <p>
+        Te enviamos este nuevo enlace para tu cambio de contraseña.
+      </p>
+      <div class="alert-box">
+        <p> Por tu seguridad, este enlace expirará en 24 horas</p>
+      </div>
+      <p>
+        Si solicitaste este cambio, haz clic en el botón de abajo para crear tu nueva contraseña. Si no realizaste esta solicitud, puedes ignorar este correo de forma segura.
+      </p>
+      <center>
+       <a href="' . BASE_URL . 'reset-password/?data=' . $id . '&data2=' . urlencode($token_hash) . '" class="button">Cambiar Contraseña</a>
+      </center>
+      <p class="highlight">Gracias por confiar en nosotros para tu formación profesional.</p>
+    </div>
+    <div class="footer">
+      © 2025 Instituto de Educación Superior Tecnológico Público Huanta. Todos los derechos reservados.<br>
+      Ayacucho, Perú | <a href="mailto:soporte@iestphuanta.edu.pe">soporte@iestphuanta.edu.pe</a><br>
+      <a href="' . BASE_URL . '">Cancelar suscripción</a>
+    </div>
+  </div>
+</body>
+</html>
+    ';
+
+        $mail->send();
+        $arr_Respuesta['status'] = true;
+        $arr_Respuesta['msg'] = 'Se envió correctamente el nuevo enlace';
+      } catch (Exception $e) {
+        $arr_Respuesta['msg'] = "Error al enviar el correo: {$mail->ErrorInfo}";
+      }
+    }
+  }
+
+  echo json_encode($arr_Respuesta);
+}
+
+
+if ($tipo == "buscar_usuarios") {
+    $arr_Respuesta = array('status' => false, 'msg' => 'Error_sesion');
+
+    if ($objSesion->verificar_sesion_si_activa($id_sesion, $token)) {
+
+        $usuarios = $objUsuario->obtenerTodosLosUsuarios();
+
+        $arr_Respuesta['status'] = true;
+        $arr_Respuesta['msg'] = 'correcto';
+        $arr_Respuesta['usuarios'] = $usuarios;
+    }
+
     echo json_encode($arr_Respuesta);
 }

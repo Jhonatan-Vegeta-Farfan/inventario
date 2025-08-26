@@ -4,10 +4,13 @@ require_once "./src/config/config.php";
 require_once "./src/control/vistas_control.php";
 
 
-
 $mostrar = new vistasControlador();
 $vista = $mostrar->obtenerVistaControlador();
 
+$reset = '';
+if ($vista == "reset-password") {
+    $reset = "reset-password";
+}
 
 if (isset($_SESSION['sesion_id']) && isset($_SESSION['sesion_token'])) {
 
@@ -45,16 +48,19 @@ if (isset($_SESSION['sesion_id']) && isset($_SESSION['sesion_token'])) {
         $vista = "login";
     }
 }
+if ($reset == "reset-password") {
+    $vista = "reset-password";
+}
 
 
-if ($vista == "login" || $vista == "404" ||$vista == "UpdatePassword" ) {
+if ($vista == "login" || $vista == "404" || $vista == "reset-password") {
     require_once "./src/view/" . $vista . ".php";
 } else {
-   if($vista != "./src/view/imprimir-movimiento.php" && $vista != "./src/view/reportes-exel.php" && $vista != "./src/view/imprimir.php"){
-       include "./src/view/include/header.php";
-    }
+if ($vista != './src/view/imprimir-movimiento.php' && $vista != './src/view/imprimir-movimientos-general.php' && $vista != './src/view/imprimir-instituciones.php' && $vista != './src/view/imprimir-ambientes.php' && $vista != './src/view/imprimir-bienes.php' && $vista != './src/view/imprimir-usuarios.php' && $vista != './src/view/reporte-bienes.php' &&  $vista != './src/view/reporte-usuarios.php' &&  $vista != './src/view/reporte-ambientes.php' &&  $vista != './src/view/reporte-instituciones.php' &&  $vista != './src/view/reporte-movimientos.php') {
+    include "./src/view/include/header.php";
+}
     include $vista;
-      if($vista != "./src/view/imprimir-movimiento.php" && $vista != "./src/view/reportes-exel.php" && $vista != "./src/view/imprimir.php"){
-       include "./src/view/include/footer.php";
-    } 
+if ($vista != './src/view/imprimir-movimiento.php' && $vista != './src/view/imprimir-movimientos-general.php' && $vista != './src/view/imprimir-instituciones.php' && $vista != './src/view/imprimir-ambientes.php' && $vista != './src/view/imprimir-bienes.php'  && $vista != './src/view/imprimir-usuarios.php'&&  $vista != './src/view/reporte-bienes.php' &&  $vista != './src/view/reporte-usuarios.php' &&  $vista != './src/view/reporte-ambientes.php' &&  $vista != './src/view/reporte-instituciones.php' &&  $vista != './src/view/reporte-movimientos.php') {
+    include "./src/view/include/footer.php";
+}
 }

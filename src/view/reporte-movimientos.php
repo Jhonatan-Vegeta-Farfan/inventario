@@ -3,7 +3,7 @@ require './vendor/autoload.php';
 
     $curl = curl_init(); //inicia la sesión cURL
     curl_setopt_array($curl, array(
-        CURLOPT_URL => BASE_URL_SERVER."src/control/Bien.php?tipo=buscar_bienes&sesion=".$_SESSION['sesion_id']."&token=".$_SESSION['sesion_token'], //url a la que se conecta
+        CURLOPT_URL => BASE_URL_SERVER."src/control/Movimiento.php?tipo=buscar_movimientos&sesion=".$_SESSION['sesion_id']."&token=".$_SESSION['sesion_token'], //url a la que se conecta
         CURLOPT_RETURNTRANSFER => true, //devuelve el resultado como una cadena del tipo curl_exec
         CURLOPT_FOLLOWLOCATION => true, //sigue el encabezado que le envíe el servidor
         CURLOPT_ENCODING => "", // permite decodificar la respuesta y puede ser"identity", "deflate", y "gzip", si está vacío recibe todos los disponibles.
@@ -23,11 +23,12 @@ require './vendor/autoload.php';
     } else {
         $respuesta = json_decode($response);
     }
-    if (!isset($respuesta->bienes) || !is_array($respuesta->bienes)) {
-    echo "Error al obtener los bienes.";
+if (!isset($respuesta->movimientos) || !is_array($respuesta->movimientos)) {
+    echo "Error al obtener los movimientos.";
     echo "<pre>"; print_r($respuesta); echo "</pre>";
     exit;
 }
+
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -38,7 +39,7 @@ $activeWorksheet = $spreadsheet->getActiveSheet();
 $activeWorksheet->setTitle("hoja 1");
 
 $fila = 1;
-$headers = ['N°','Descripción', 'Ambiente', 'Código patrimonial', 'Denominación', 'Marca', 'Modelo', 'Tipo', 'Color', 'Serie', 'Dimensiones', 'Valor', 'Situación', 'Estado de conservación', 'Observaciones', 'Fecha de registro', 'Usuario registrante'];
+$headers = ['N°','Ambiente de origen', 'Ambiente de destino', 'Usuario registrante', 'Fecha de registro', 'Descripción', 'Institución'];
 
 $colIndex = 'A';
 foreach ($headers as $header) {
@@ -50,7 +51,7 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Font;
 
 // Rango de los encabezados, por ejemplo A1:H1 (ajústalo según la cantidad de columnas que tengas)
-$encabezadoRange = 'A1:Q1';
+$encabezadoRange = 'A1:G1';
 
 // Aplicar estilos al encabezado
 $styleArray = [
@@ -79,42 +80,32 @@ $styleArray = [
 $activeWorksheet->getStyle($encabezadoRange)->applyFromArray($styleArray);
 
 // También puedes hacer que las columnas se ajusten automáticamente:
-foreach (range('A', 'Q') as $col) {
+foreach (range('A', 'G') as $col) {
     $activeWorksheet->getColumnDimension($col)->setAutoSize(true);
 }
 
 
 $fila = 2;
 $contador = 1;
-foreach ($respuesta->bienes as $bien) {
+foreach ($respuesta->movimientos as $movimiento) {
     $activeWorksheet->setCellValue('A'.$fila, $contador);
-    $activeWorksheet->setCellValue('B'.$fila, $bien->ingreso_detalle);
-    $activeWorksheet->setCellValue('C'.$fila, $bien->ambiente_detalle);
-    $activeWorksheet->setCellValue('D'.$fila, $bien->cod_patrimonial);
-    $activeWorksheet->setCellValue('E'.$fila, $bien->denominacion);
-    $activeWorksheet->setCellValue('F'.$fila, $bien->marca);
-    $activeWorksheet->setCellValue('G'.$fila, $bien->modelo);
-    $activeWorksheet->setCellValue('H'.$fila, $bien->tipo);
-    $activeWorksheet->setCellValue('I'.$fila, $bien->color);
-    $activeWorksheet->setCellValue('J'.$fila, $bien->serie);
-    $activeWorksheet->setCellValue('K'.$fila, $bien->dimensiones);
-    $activeWorksheet->setCellValue('L'.$fila, $bien->valor);
-    $activeWorksheet->setCellValue('M'.$fila, $bien->situacion);
-    $activeWorksheet->setCellValue('N'.$fila, $bien->estado_conservacion);
-    $activeWorksheet->setCellValue('O'.$fila, $bien->observaciones);
-    $activeWorksheet->setCellValue('P'.$fila, $bien->fecha_registro);
-    $activeWorksheet->setCellValue('Q'.$fila, $bien->usuario_registrante);
+    $activeWorksheet->setCellValue('B'.$fila, $movimiento->ambiente_origen);
+    $activeWorksheet->setCellValue('C'.$fila, $movimiento->ambiente_destino);
+    $activeWorksheet->setCellValue('D'.$fila, $movimiento->registrante);
+    $activeWorksheet->setCellValue('E'.$fila, $movimiento->fecha);
+    $activeWorksheet->setCellValue('F'.$fila, $movimiento->descripcion);
+    $activeWorksheet->setCellValue('G'.$fila, $movimiento->institucion);
     $contador++;
     $fila++;
 }
-foreach (range('A', 'Q') as $col) {
+foreach (range('A', 'G') as $col) {
     $activeWorksheet->getColumnDimension($col)->setAutoSize(true);
 }
 
 
 ob_clean();
 header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-header('Content-Disposition: attachment;filename="Bienes.xlsx"');
+header('Content-Disposition: attachment;filename="Movimientos-general.xlsx"');
 header('Cache-Control: max-age=0');
 
 $writer = new Xlsx($spreadsheet);

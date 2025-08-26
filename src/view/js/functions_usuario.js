@@ -1,5 +1,3 @@
-const { cache } = require("react");
-
 function numero_pagina(pagina) {
     document.getElementById('pagina').value = pagina;
     listar_usuariosOrdenados();
@@ -291,8 +289,8 @@ function reset_password(id) {
         }
     });
 }
-
 async function reniciar_password(id) {
+
     // generamos el formulario
     const formData = new FormData();
     formData.append('id', id);
@@ -331,4 +329,6 @@ async function reniciar_password(id) {
     } catch (e) {
         console.log("Error al actualizar periodo" + e);
     }
+
+
 }

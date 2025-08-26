@@ -23,6 +23,8 @@ async function iniciar_sesion() {
         });
         json = await respuesta.json();
         if (json.status) {
+            window.session_session = json.contenido['sesion_id'];
+    window.token_token = json.contenido['sesion_token'];
             //swal("Iniciar Sesion", json.mensaje, "success");
             const formData = new FormData();
             formData.append('session', json.contenido['sesion_id']);
@@ -70,19 +72,18 @@ async function cerrar_sesion() {
     }
 }
 
-async function sent_email_password(){
+async function send_email_password(){
     const datos = new FormData();
     datos.append('sesion', session_session);
     datos.append('token', token_token);
     try {
-        let respuesta = await fetch(base_url_server + 'src/control/Usuario.php?tipo=sent_email_password', {
+        let respuesta = await fetch(base_url_server + 'src/control/Usuario.php?tipo=send_email_password', {
             method: 'POST',
             mode: 'cors',
             cache: 'no-cache',
             body: datos
         });
-   
     } catch (error) {
-        console.log("Error al actualizar periodo" + e);
+        
     }
 }

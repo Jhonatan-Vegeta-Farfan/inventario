@@ -259,7 +259,7 @@ public function Footer() {
 
         // set document information
         $pdf->SetCreator(PDF_CREATOR);
-        $pdf->SetAuthor('JHONATAN');
+        $pdf->SetAuthor('Jhonatan Farfan');
         $pdf->SetTitle('REPORTE DE MOVIMIENTOS');
         $pdf->SetSubject('TCPDF Tutorial');
         $pdf->SetKeywords('TCPDF, PDF, example, test, guide');
