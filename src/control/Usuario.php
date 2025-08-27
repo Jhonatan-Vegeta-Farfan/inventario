@@ -174,7 +174,7 @@ if ($tipo == "send_email_password") {
         $mail->Port       = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
 
         //Recipients
-        $mail->setFrom('renzo_2002@serviciosvirtuales.com.pe', 'Cambio de contraseña - TB');
+        $mail->setFrom('jhonatannfarfan@dpweb2024.com', 'Cambio de contraseña - TB');
         $mail->addAddress($datos_usuario->correo, $datos_usuario->nombres_apellidos);     //Add a recipient
         /*$mail->addAddress('ellen@example.com');               //Name is optional
     $mail->addReplyTo('info@example.com', 'Information');
